@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Home Bakery Pricing &amp; Profit</title>
+<meta name="description" content="Price your bakes, track orders and see your profit. Works offline, data stays on your device.">
+<meta name="theme-color" content="#477563">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>:root{--page:#F4F5F8;--card:#FFFFFF;--text:#232A33;--muted:#5D6673;--line:#DDE1EA;--band:#477563;--bandt:#FFFFFF;
+--input:#E4EEEA;--accent:#4F5FA8;--accon:#FFFFFF;--tint:#E8EAF7;--ok:#2F5D4C;--oktint:#E3EFE9;--warn:#7A4A12;
+--warntint:#FBEFD9;--bad:#B3261E;--badtint:#FCE8E6;--info:#3E4C8F;--infotint:#E8EAF7;--waittint:#EFF1F5;--bar:#477563;
+--shadow:0 1px 2px rgba(20,30,50,.06),0 2px 8px rgba(20,30,50,.05);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#12151B;--card:#1A1F28;--text:#EEF1F6;
+--muted:#A3ACBB;--line:#2A3140;--band:#243330;--bandt:#EEF1F6;--input:#283F38;--accent:#9AA7E8;--accon:#12151B;
+--tint:#252B45;--ok:#A9C7BB;--oktint:#1F3A30;--warn:#E3B77A;--warntint:#3A2C17;--bad:#F28B82;--badtint:#3A2422;
+--info:#B4BEF0;--infotint:#252B45;--waittint:#232A36;--bar:#A9C7BB;--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#12151B;--card:#1A1F28;--text:#EEF1F6;--muted:#A3ACBB;--line:#2A3140;--band:#243330;
+--bandt:#EEF1F6;--input:#283F38;--accent:#9AA7E8;--accon:#12151B;--tint:#252B45;--ok:#A9C7BB;--oktint:#1F3A30;
+--warn:#E3B77A;--warntint:#3A2C17;--bad:#F28B82;--badtint:#3A2422;--info:#B4BEF0;--infotint:#252B45;--waittint:#232A36;
+--bar:#A9C7BB;--shadow:none;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{max-width:760px;margin:0 auto;padding:0 16px calc(84px + env(safe-area-inset-bottom))}
+header.top{position:sticky;top:0;z-index:5;background:var(--page);padding:14px 0 10px;display:flex;align-items:center;gap:10px}
+header.top h1{font-size:22px;margin:0;flex:1;letter-spacing:-.2px}
+.brand{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.brand i{width:10px;height:10px;border-radius:3px;background:var(--band);display:inline-block}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:1px solid var(--line);
+display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs .in{display:flex;max-width:760px;width:100%}
+nav.tabs button{flex:1;border:0;background:none;padding:9px 2px 10px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;min-height:58px;cursor:pointer}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav.tabs button.on{color:var(--accent);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 12px;box-shadow:var(--shadow)}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 10px;font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+@media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.kpi .l{font-size:12px;color:var(--muted)}.kpi .v{font-size:22px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.acc{background:var(--tint);border-color:var(--accent)}.kpi.acc .v{color:var(--accent)}
+.row{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);cursor:pointer;min-height:48px}
+.row:first-of-type{border-top:0}
+.row .main{flex:1;min-width:0}.row .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.row .amt small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--oktint);color:var(--ok)}.pill.warn{background:var(--warntint);color:var(--warn)}
+.pill.bad{background:var(--badtint);color:var(--bad)}.pill.info{background:var(--infotint);color:var(--info)}
+.pill.wait{background:var(--waittint);color:var(--muted)}
+.btn{border:0;border-radius:999px;padding:12px 18px;min-height:46px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--accon)}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn.plain{background:var(--waittint);color:var(--text)}
+.btn.danger{background:transparent;color:var(--bad);border:1.5px solid var(--bad)}
+.btn.block{width:100%}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btns .btn{flex:1;min-width:130px}
+.fab{position:fixed;right:max(16px,calc(50vw - 364px));bottom:calc(76px + env(safe-area-inset-bottom));z-index:11;
+border:0;border-radius:999px;padding:14px 20px;background:var(--accent);color:var(--accon);font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.2);cursor:pointer;min-height:50px}
+.seg{display:flex;background:var(--waittint);border-radius:999px;padding:4px;margin:0 0 12px}
+.seg button{flex:1;border:0;background:none;border-radius:999px;padding:9px 8px;min-height:40px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px}
+.chips button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;min-height:38px;white-space:nowrap;cursor:pointer}
+.chips button.on{background:var(--accent);color:var(--accon);border-color:var(--accent)}
+label.f{display:block;margin:0 0 12px}label.f span{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input.i,select.i,textarea.i{width:100%;border:1px solid var(--line);background:var(--input);border-radius:10px;padding:11px 12px;min-height:46px;outline:none}
+input.i:focus,select.i:focus,textarea.i:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--tint)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.grid3{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:0 8px}
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(10,14,22,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet .panel{background:var(--page);width:100%;max-width:760px;max-height:94vh;overflow:auto;border-radius:18px 18px 0 0;padding:6px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet .bar{position:sticky;top:0;background:var(--page);display:flex;align-items:center;gap:8px;padding:10px 0;z-index:2}
+.sheet .bar h3{flex:1;margin:0;font-size:18px}.x{border:0;background:var(--waittint);border-radius:999px;width:40px;height:40px;font-size:20px;cursor:pointer}
+.break{font-variant-numeric:tabular-nums}.break div{display:flex;justify-content:space-between;padding:5px 0;border-top:1px dashed var(--line)}
+.break div:first-child{border-top:0}.break .big{font-size:18px;font-weight:700;border-top:1px solid var(--line)}
+.muted{color:var(--muted)}.small{font-size:13px}.right{text-align:right}.mono{font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);text-align:center;padding:18px 6px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px;padding-top:6px}
+.bars div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:11px;color:var(--muted);height:100%}
+.bars b{display:block;width:100%;background:var(--bar);border-radius:4px 4px 0 0;min-height:2px}
+.meter{height:10px;border-radius:999px;background:var(--waittint);overflow:hidden;margin:6px 0}.meter b{display:block;height:100%;background:var(--bar)}
+.line{display:grid;grid-template-columns:1.6fr .8fr .8fr 34px;gap:6px;align-items:start;margin-bottom:8px}
+.line .x{width:34px;height:46px;border-radius:10px}.line .note{grid-column:1/-1;font-size:12px;margin-top:-4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(140px + env(safe-area-inset-bottom));background:var(--text);color:var(--page);padding:10px 16px;border-radius:999px;z-index:30;font-size:14px}
+.welcome{text-align:center;padding:24px 8px}.welcome h2{text-transform:none;font-size:22px;color:var(--text);letter-spacing:0}
+.quote{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}.quote h4{margin:0 0 4px;font-size:20px}
+.warnbox{background:var(--warntint);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+</style></head>
+<body><div id="app"></div>
+<noscript>This app needs JavaScript turned on.</noscript>
+<script>/* Home Bakery Pricing & Profit: the same math as the spreadsheet (spec 4 to 6).
+   Plain functions over the app state, no DOM. Works in the browser (window.Calc) and in Node (tests). */
+(function (root) {
+  "use strict";
+  var CUP = 236.588;
+  var EPS = 1e-9;
+
+  function num(x) { var n = Number(x); return isFinite(n) && x !== "" && x !== null && x !== undefined ? n : 0; }
+  function isNum(x) { return x !== "" && x !== null && x !== undefined && isFinite(Number(x)); }
+  function round(x, d) { var f = Math.pow(10, d === undefined ? 2 : d); return Math.round((x + (x < 0 ? -EPS : EPS)) * f) / f; }
+  function byId(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
+  function unit(state, u) {
+    for (var i = 0; i < state.units.length; i++) if (state.units[i].u === u) return state.units[i];
+    return null;
+  }
+  // a date "2026-11-10" -> day number, so dates compare and subtract like the sheet's serials
+  function day(s) { if (!s) return null; var p = String(s).split("-"); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000; }
+  function iso(d) { var t = new Date(d * 86400000); return t.toISOString().slice(0, 10); }
+  function today() { var t = new Date(); return iso(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()) / 86400000); }
+
+  // ---- ingredients
+  function ingInfo(state, ing) {
+    var u = unit(state, ing.unit);
+    var ok = u && num(ing.size) > 0 && isNum(ing.price);
+    return { kind: u ? u.kind : "", factor: u ? num(u.f) : 0,
+             perBase: ok ? num(ing.price) / (num(ing.size) * num(u.f)) : null,
+             base: u ? (u.kind === "weight" ? "g" : u.kind === "volume" ? "ml" : "piece") : "" };
+  }
+
+  // ---- recipe lines: amount in the ingredient's base unit, or a problem text
+  function lineInfo(state, line) {
+    var ing = byId(state.ingredients, line.ingId);
+    if (!ing) return { base: null, cost: null, problem: "Pick an ingredient" };
+    var u = unit(state, line.unit);
+    if (!u) return { base: null, cost: null, problem: "Unit not in Settings" };
+    if (!isNum(line.qty)) return { base: null, cost: null, problem: "Quantity" };
+    var ii = ingInfo(state, ing), base = null;
+    if (u.kind === ii.kind) base = num(line.qty) * num(u.f);
+    else if (u.kind === "volume" && ii.kind === "weight" && isNum(ing.gpc)) base = num(line.qty) * num(u.f) / CUP * num(ing.gpc);
+    else return { base: null, cost: null, problem: u.kind === "volume" && ii.kind === "weight" ?
+      "Add grams per cup to " + ing.name : "This unit does not fit " + ing.name };
+    if (ii.perBase === null) return { base: base, cost: null, problem: ing.name + " has no price" };
+    return { base: base, cost: base * ii.perBase, problem: "" };
+  }
+
+  function recipeInfo(state, rec) {
+    var cost = 0, problems = 0;
+    (rec.lines || []).forEach(function (l) { var li = lineInfo(state, l); if (li.problem) problems++; cost += li.cost || 0; });
+    var y = num(rec.yield);
+    return { cost: cost, perPiece: y > 0 ? cost / y : null, problems: problems, lines: (rec.lines || []).length };
+  }
+
+  // ---- products (Price List)
+  function productInfo(state, p) {
+    var s = state.settings, rec = p.recipeId ? byId(state.recipes, p.recipeId) : null;
+    var pieces = isNum(p.pieces) ? num(p.pieces) : 1;
+    var ri = rec ? recipeInfo(state, rec) : null;
+    var ing = ri && ri.perPiece !== null ? pieces * ri.perPiece : 0;
+    var labour = num(p.mins) / 60 * num(s.rate);
+    var over = s.overType === "Per item" ? num(s.overhead) : ing * num(s.overhead);
+    var money = ing + num(p.pack) + num(p.deco) + over;
+    var full = money + labour;
+    var step = num(s.step) > 0 ? num(s.step) : 0.01;
+    var sugg = full > 0 ? Math.ceil((full * (1 + num(s.markup)) - EPS) / step) * step : 0;
+    sugg = round(sugg, 2);
+    var used = isNum(p.price) ? num(p.price) : sugg;
+    var profit = used - money;
+    var perHour = num(p.mins) > 0 ? profit / (num(p.mins) / 60) : null;
+    var flag = used < money - EPS ? "under-cost" : used < full - EPS ? "under-rate" : "ok";
+    return { ing: ing, labour: labour, over: over, money: money, full: full, sugg: sugg, used: used,
+             profit: profit, perHour: perHour, afterPay: used - full, flag: flag, recipe: rec, pieces: pieces };
+  }
+
+  // ---- orders
+  function orderStatus(state, o, asOf) {
+    if (o.status) return o.status;
+    return o.pickup && day(o.pickup) <= day(asOf) ? "Delivered" : "Confirmed";
+  }
+  function orderInfo(state, o, asOf) {
+    asOf = asOf || today();
+    var p = byId(state.products, o.productId), pi = p ? productInfo(state, p) : null;
+    var st = orderStatus(state, o, asOf);
+    var off = st === "Cancelled" || st === "Enquiry";
+    var price = isNum(o.price) ? num(o.price) : (pi ? pi.used : 0);
+    var total = round(num(o.qty) * price + num(o.extras) - num(o.discount) + num(o.delivery));
+    var paid = o.paidOn ? total : num(o.deposit);
+    var balance = off ? 0 : round(total - paid);
+    var sales = st === "Cancelled" ? num(o.deposit) : st === "Enquiry" ? 0 : total;
+    var costEach = isNum(o.costEach) ? num(o.costEach) : (pi ? pi.money : 0);
+    var cost = off ? 0 : round(num(o.qty) * costEach);
+    var hours = off || !p ? 0 : num(o.qty) * num(p.mins) / 60;
+    var open = st === "Confirmed" || st === "Baked";
+    var days = open && o.pickup ? day(o.pickup) - day(asOf) : null;
+    var pill;
+    if (st === "Cancelled" || st === "Enquiry") pill = { t: st, k: "wait" };
+    else if (st === "Delivered") pill = balance > 0 ? { t: "▲ Balance due", k: "bad" } : { t: "✓ Paid", k: "ok" };
+    else if (days === null) pill = { t: "Booked", k: "info" };
+    else if (days < 0) pill = { t: "▲ Past pickup", k: "bad" };
+    else if (days === 0) pill = { t: "● Today", k: "warn" };
+    else if (days <= num(state.settings.dueDays)) pill = { t: "● In " + days + (days === 1 ? " day" : " days"), k: "warn" };
+    else pill = { t: "Booked", k: "info" };
+    return { status: st, product: p, price: price, total: total, paid: paid, balance: balance, sales: sales,
+             cost: cost, profit: round(sales - cost), hours: hours, days: days, open: open, pill: pill };
+  }
+
+  // ---- shopping list for confirmed orders in the next N days
+  function shopping(state, asOf, days) {
+    asOf = asOf || today();
+    days = days === undefined ? num(state.settings.shopDays) : days;
+    var a = day(asOf), b = a + days, batches = {};
+    state.orders.forEach(function (o) {
+      var oi = orderInfo(state, o, asOf);
+      if (!oi.open || !o.pickup || !oi.product) return;
+      var d = day(o.pickup);
+      if (d < a || d > b) return;
+      var p = oi.product, rec = p.recipeId ? byId(state.recipes, p.recipeId) : null;
+      if (!rec || !(num(rec.yield) > 0)) return;
+      var pieces = isNum(p.pieces) ? num(p.pieces) : 1;
+      batches[rec.id] = (batches[rec.id] || 0) + num(o.qty) * pieces / num(rec.yield);
+    });
+    var need = {};
+    state.recipes.forEach(function (rec) {
+      if (!batches[rec.id]) return;
+      (rec.lines || []).forEach(function (l) {
+        var li = lineInfo(state, l);
+        if (li.base !== null) need[l.ingId] = (need[l.ingId] || 0) + li.base * batches[rec.id];
+      });
+    });
+    return state.ingredients.map(function (ing) {
+      var ii = ingInfo(state, ing), n = need[ing.id] || 0, packs = null, buy = null, label = "";
+      if (n > 0 && ii.factor > 0 && num(ing.size) > 0) {
+        packs = round(n / (num(ing.size) * ii.factor), 2);
+        if (isNum(ing.onHand)) { buy = Math.max(0, Math.ceil(packs - num(ing.onHand) - EPS)); label = buy > 0 ? "Buy " + buy : "✓ Enough"; }
+        else label = "Needed";
+      } else if (isNum(ing.onHand) && isNum(ing.lowAt) && num(ing.onHand) <= num(ing.lowAt)) label = "Low";
+      return { ing: ing, needBase: n, packs: packs, buy: buy, label: label, base: ii.base };
+    }).filter(function (x) { return x.label; });
+  }
+
+  // ---- totals for a date range (pickup date), like the Dashboard (running costs are not in the app)
+  function totals(state, from, to, asOf) {
+    var a = day(from), b = day(to), t = { sales: 0, cost: 0, profit: 0, hours: 0, orders: 0, cancelled: 0, total: 0 };
+    state.orders.forEach(function (o) {
+      if (!o.pickup) return;
+      var d = day(o.pickup);
+      if (d < a || d > b) return;
+      var oi = orderInfo(state, o, asOf);
+      if (oi.status === "Enquiry") return;
+      t.sales += oi.sales; t.cost += oi.cost; t.profit += oi.profit; t.hours += oi.hours;
+      if (oi.status === "Cancelled") t.cancelled++; else { t.orders++; t.total += oi.total; }
+    });
+    t.sales = round(t.sales); t.cost = round(t.cost); t.profit = round(t.profit);
+    t.perHour = t.hours > 0 ? round(t.profit / t.hours) : null;
+    return t;
+  }
+
+  var Calc = { num: num, isNum: isNum, round: round, byId: byId, day: day, iso: iso, today: today, ingInfo: ingInfo,
+               lineInfo: lineInfo, recipeInfo: recipeInfo, productInfo: productInfo, orderInfo: orderInfo,
+               shopping: shopping, totals: totals };
+  if (typeof module !== "undefined" && module.exports) module.exports = Calc; else root.Calc = Calc;
+})(this);
+</script>
+<script>window.SAMPLE_DATA={"v":1,"settings":{"currency":"\u20ac","rate":15,"markup":0.1,"overhead":0.75,"overType":"Per item","step":0.5,"shopDays":7,"dueDays":3,"cap":null,"warnPct":0.8,"taxPct":0.2},"units":[{"u":"g","kind":"weight","f":1.0},{"u":"kg","kind":"weight","f":1000.0},{"u":"oz","kind":"weight","f":28.3495},{"u":"lb","kind":"weight","f":453.592},{"u":"ml","kind":"volume","f":1.0},{"u":"l","kind":"volume","f":1000.0},{"u":"tsp","kind":"volume","f":4.92892},{"u":"tbsp","kind":"volume","f":14.7868},{"u":"cup","kind":"volume","f":236.588},{"u":"fl oz","kind":"volume","f":29.5735},{"u":"each","kind":"count","f":1.0}],"channels":["Instagram","Facebook","WhatsApp","Market stall","Word of mouth","Website","Repeat customer"],"ingredients":[{"id":"i1","name":"Plain flour","cat":"Dry goods","size":1,"unit":"kg","price":1.15,"supplier":"Supermarket","gpc":125,"onHand":3,"lowAt":null},{"id":"i2","name":"Self-raising flour","cat":"Dry goods","size":1,"unit":"kg","price":1.29,"supplier":"Supermarket","gpc":125,"onHand":1,"lowAt":null},{"id":"i3","name":"Bread flour","cat":"Dry goods","size":1.5,"unit":"kg","price":2.1,"supplier":"Supermarket","gpc":130,"onHand":2,"lowAt":null},{"id":"i4","name":"Caster sugar","cat":"Dry goods","size":1,"unit":"kg","price":1.49,"supplier":"Supermarket","gpc":200,"onHand":0,"lowAt":null},{"id":"i5","name":"Icing sugar","cat":"Dry goods","size":500,"unit":"g","price":1.09,"supplier":"Supermarket","gpc":120,"onHand":2,"lowAt":null},{"id":"i6","name":"Brown sugar","cat":"Dry goods","size":500,"unit":"g","price":1.35,"supplier":"Supermarket","gpc":220,"onHand":1,"lowAt":null},{"id":"i7","name":"Unsalted butter","cat":"Dairy","size":250,"unit":"g","price":2.79,"supplier":"Supermarket","gpc":227,"onHand":6,"lowAt":null},{"id":"i8","name":"Eggs (large)","cat":"Dairy","size":10,"unit":"each","price":3.2,"supplier":"Farm shop","gpc":null,"onHand":3,"lowAt":null},{"id":"i9","name":"Whole milk","cat":"Dairy","size":1,"unit":"l","price":1.25,"supplier":"Supermarket","gpc":null,"onHand":1,"lowAt":null},{"id":"i10","name":"Double cream","cat":"Dairy","size":200,"unit":"ml","price":1.45,"supplier":"Supermarket","gpc":null,"onHand":1,"lowAt":null},{"id":"i11","name":"Cream cheese","cat":"Dairy","size":280,"unit":"g","price":2.39,"supplier":"Supermarket","gpc":232,"onHand":2,"lowAt":2},{"id":"i12","name":"Cocoa powder","cat":"Dry goods","size":250,"unit":"g","price":3.49,"supplier":"Supermarket","gpc":85,"onHand":1,"lowAt":null},{"id":"i13","name":"Dark chocolate 70%","cat":"Chocolate","size":1,"unit":"kg","price":14.9,"supplier":"Cash and carry","gpc":170,"onHand":0,"lowAt":null},{"id":"i14","name":"White chocolate","cat":"Chocolate","size":1,"unit":"kg","price":13.5,"supplier":"Cash and carry","gpc":170,"onHand":0,"lowAt":null},{"id":"i15","name":"Vanilla extract","cat":"Flavours","size":100,"unit":"ml","price":6.95,"supplier":"Online","gpc":null,"onHand":1,"lowAt":null},{"id":"i16","name":"Baking powder","cat":"Dry goods","size":170,"unit":"g","price":1.19,"supplier":"Supermarket","gpc":230,"onHand":1,"lowAt":null},{"id":"i17","name":"Bicarbonate of soda","cat":"Dry goods","size":200,"unit":"g","price":0.99,"supplier":"Supermarket","gpc":230,"onHand":1,"lowAt":null},{"id":"i18","name":"Salt","cat":"Dry goods","size":1,"unit":"kg","price":0.59,"supplier":"Supermarket","gpc":290,"onHand":1,"lowAt":null},{"id":"i19","name":"Ground almonds","cat":"Nuts","size":1,"unit":"kg","price":11.9,"supplier":"Cash and carry","gpc":96,"onHand":1,"lowAt":null},{"id":"i20","name":"Fresh yeast","cat":"Dry goods","size":42,"unit":"g","price":0.35,"supplier":"Supermarket","gpc":null,"onHand":2,"lowAt":null},{"id":"i21","name":"Strawberries","cat":"Fruit","size":400,"unit":"g","price":2.99,"supplier":"Market","gpc":150,"onHand":0,"lowAt":null},{"id":"i22","name":"Lemons","cat":"Fruit","size":4,"unit":"each","price":1.49,"supplier":"Market","gpc":null,"onHand":2,"lowAt":null},{"id":"i23","name":"Raspberry jam","cat":"Fruit","size":340,"unit":"g","price":2.29,"supplier":"Supermarket","gpc":320,"onHand":1,"lowAt":null},{"id":"i24","name":"Fondant icing","cat":"Decorating","size":1,"unit":"kg","price":7.5,"supplier":"Online","gpc":null,"onHand":1,"lowAt":1},{"id":"i25","name":"Gel food colour","cat":"Decorating","size":25,"unit":"g","price":3.95,"supplier":"Online","gpc":null,"onHand":4,"lowAt":null},{"id":"i26","name":"Sprinkles","cat":"Decorating","size":100,"unit":"g","price":2.49,"supplier":"Online","gpc":180,"onHand":2,"lowAt":null},{"id":"i27","name":"Vegetable oil","cat":"Dry goods","size":1,"unit":"l","price":2.19,"supplier":"Supermarket","gpc":null,"onHand":1,"lowAt":null},{"id":"i28","name":"Buttermilk","cat":"Dairy","size":300,"unit":"ml","price":0.99,"supplier":"Supermarket","gpc":null,"onHand":0,"lowAt":null},{"id":"i29","name":"Cinnamon","cat":"Flavours","size":40,"unit":"g","price":1.59,"supplier":"Supermarket","gpc":125,"onHand":1,"lowAt":null},{"id":"i30","name":"Carrots","cat":"Fruit","size":1,"unit":"kg","price":0.99,"supplier":"Market","gpc":110,"onHand":0,"lowAt":null},{"id":"i31","name":"Walnuts","cat":"Nuts","size":200,"unit":"g","price":3.29,"supplier":"Supermarket","gpc":117,"onHand":1,"lowAt":null}],"recipes":[{"id":"r1","name":"Vanilla sponge 8in","yield":1,"lines":[{"ingId":"i2","qty":340,"unit":"g"},{"ingId":"i4","qty":340,"unit":"g"},{"ingId":"i7","qty":340,"unit":"g"},{"ingId":"i8","qty":6,"unit":"each"},{"ingId":"i15","qty":2,"unit":"tsp"},{"ingId":"i9","qty":3,"unit":"tbsp"}]},{"id":"r2","name":"Chocolate fudge cake 8in","yield":1,"lines":[{"ingId":"i1","qty":2,"unit":"cup"},{"ingId":"i4","qty":1.5,"unit":"cup"},{"ingId":"i12","qty":0.75,"unit":"cup"},{"ingId":"i8","qty":3,"unit":"each"},{"ingId":"i28","qty":250,"unit":"ml"},{"ingId":"i27","qty":120,"unit":"ml"},{"ingId":"i17","qty":1.5,"unit":"tsp"},{"ingId":"i13","qty":200,"unit":"g"},{"ingId":"i10","qty":200,"unit":"ml"}]},{"id":"r3","name":"Vanilla cupcakes","yield":24,"lines":[{"ingId":"i2","qty":400,"unit":"g"},{"ingId":"i4","qty":400,"unit":"g"},{"ingId":"i7","qty":400,"unit":"g"},{"ingId":"i8","qty":8,"unit":"each"},{"ingId":"i15","qty":1,"unit":"tbsp"}]},{"id":"r4","name":"Chocolate cupcakes","yield":24,"lines":[{"ingId":"i2","qty":340,"unit":"g"},{"ingId":"i12","qty":60,"unit":"g"},{"ingId":"i4","qty":400,"unit":"g"},{"ingId":"i7","qty":400,"unit":"g"},{"ingId":"i8","qty":8,"unit":"each"}]},{"id":"r5","name":"Sugar cookies","yield":24,"lines":[{"ingId":"i1","qty":3,"unit":"cup"},{"ingId":"i4","qty":1,"unit":"cup"},{"ingId":"i7","qty":1,"unit":"cup"},{"ingId":"i8","qty":1,"unit":"each"},{"ingId":"i15","qty":1,"unit":"tsp"},{"ingId":"i5","qty":300,"unit":"g"},{"ingId":"i25","qty":5,"unit":"g"}]},{"id":"r6","name":"Chocolate chip cookies","yield":24,"lines":[{"ingId":"i1","qty":2.25,"unit":"cup"},{"ingId":"i6","qty":0.75,"unit":"cup"},{"ingId":"i4","qty":0.75,"unit":"cup"},{"ingId":"i7","qty":1,"unit":"cup"},{"ingId":"i8","qty":2,"unit":"each"},{"ingId":"i13","qty":300,"unit":"g"},{"ingId":"i17","qty":1,"unit":"tsp"},{"ingId":"i18","qty":1,"unit":"tsp"}]},{"id":"r7","name":"French macarons","yield":30,"lines":[{"ingId":"i19","qty":150,"unit":"g"},{"ingId":"i5","qty":150,"unit":"g"},{"ingId":"i4","qty":150,"unit":"g"},{"ingId":"i8","qty":4,"unit":"each"},{"ingId":"i14","qty":150,"unit":"g"},{"ingId":"i10","qty":100,"unit":"ml"},{"ingId":"i25","qty":2,"unit":"g"}]},{"id":"r8","name":"Sourdough loaf","yield":1,"lines":[{"ingId":"i3","qty":500,"unit":"g"},{"ingId":"i18","qty":10,"unit":"g"}]},{"id":"r9","name":"Cinnamon rolls","yield":12,"lines":[{"ingId":"i3","qty":500,"unit":"g"},{"ingId":"i9","qty":250,"unit":"ml"},{"ingId":"i7","qty":150,"unit":"g"},{"ingId":"i6","qty":150,"unit":"g"},{"ingId":"i20","qty":20,"unit":"g"},{"ingId":"i29","qty":2,"unit":"tbsp"},{"ingId":"i8","qty":1,"unit":"each"},{"ingId":"i11","qty":120,"unit":"g"}]},{"id":"r10","name":"Carrot cake 8in","yield":1,"lines":[{"ingId":"i2","qty":300,"unit":"g"},{"ingId":"i6","qty":300,"unit":"g"},{"ingId":"i27","qty":250,"unit":"ml"},{"ingId":"i8","qty":4,"unit":"each"},{"ingId":"i30","qty":300,"unit":"g"},{"ingId":"i31","qty":100,"unit":"g"},{"ingId":"i29","qty":2,"unit":"tsp"}]},{"id":"r11","name":"Lemon drizzle loaf","yield":1,"lines":[{"ingId":"i2","qty":225,"unit":"g"},{"ingId":"i4","qty":325,"unit":"g"},{"ingId":"i7","qty":225,"unit":"g"},{"ingId":"i8","qty":4,"unit":"each"},{"ingId":"i22","qty":2,"unit":"each"}]},{"id":"r12","name":"Brownies","yield":16,"lines":[{"ingId":"i13","qty":200,"unit":"g"},{"ingId":"i7","qty":250,"unit":"g"},{"ingId":"i4","qty":300,"unit":"g"},{"ingId":"i8","qty":4,"unit":"each"},{"ingId":"i1","qty":100,"unit":"g"},{"ingId":"i12","qty":40,"unit":"g"}]},{"id":"r13","name":"Buttercream batch","yield":1,"lines":[{"ingId":"i7","qty":500,"unit":"g"},{"ingId":"i5","qty":1,"unit":"kg"},{"ingId":"i10","qty":3,"unit":"tbsp"},{"ingId":"i15","qty":2,"unit":"tsp"}]},{"id":"r14","name":"Cream cheese frosting","yield":1,"lines":[{"ingId":"i11","qty":280,"unit":"g"},{"ingId":"i7","qty":100,"unit":"g"},{"ingId":"i5","qty":300,"unit":"g"}]}],"products":[{"id":"p1","name":"Birthday cake 8in (vanilla)","cat":"Cakes","recipeId":"r1","pieces":1,"pack":2.5,"deco":6.8,"mins":180,"price":72.0},{"id":"p2","name":"Chocolate fudge cake 8in","cat":"Cakes","recipeId":"r2","pieces":1,"pack":2.5,"deco":3.2,"mins":150,"price":62.0},{"id":"p3","name":"Carrot cake 8in","cat":"Cakes","recipeId":"r10","pieces":1,"pack":2.5,"deco":2.4,"mins":120,"price":50.0},{"id":"p4","name":"Vanilla cupcakes (box of 12)","cat":"Cupcakes","recipeId":"r3","pieces":12,"pack":2.2,"deco":2.6,"mins":75,"price":34.0},{"id":"p5","name":"Chocolate cupcakes (box of 12)","cat":"Cupcakes","recipeId":"r4","pieces":12,"pack":2.2,"deco":2.6,"mins":75,"price":34.0},{"id":"p6","name":"Sugar cookies (box of 12)","cat":"Cookies","recipeId":"r5","pieces":12,"pack":1.8,"deco":1.2,"mins":90,"price":32.0},{"id":"p7","name":"Chocolate chip cookies (6)","cat":"Cookies","recipeId":"r6","pieces":6,"pack":0.9,"deco":0,"mins":20,"price":10.0},{"id":"p8","name":"Macarons (box of 12)","cat":"Pastries","recipeId":"r7","pieces":12,"pack":2.4,"deco":0.6,"mins":110,"price":30.0},{"id":"p9","name":"Sourdough loaf","cat":"Bread","recipeId":"r8","pieces":1,"pack":0.35,"deco":0,"mins":35,"price":9.0},{"id":"p10","name":"Cinnamon rolls (6)","cat":"Pastries","recipeId":"r9","pieces":6,"pack":1.2,"deco":0,"mins":60,"price":22.0},{"id":"p11","name":"Lemon drizzle loaf","cat":"Cakes","recipeId":"r11","pieces":1,"pack":0.8,"deco":0,"mins":50,"price":22.0},{"id":"p12","name":"Brownie box (8)","cat":"Treat boxes","recipeId":"r12","pieces":8,"pack":1.6,"deco":0,"mins":40,"price":18.0},{"id":"p13","name":"Christmas cookie box (12)","cat":"Seasonal","recipeId":"r5","pieces":12,"pack":2.4,"deco":2.2,"mins":100,"price":36.5},{"id":"p14","name":"Easter cupcakes (box of 6)","cat":"Seasonal","recipeId":"r3","pieces":6,"pack":1.8,"deco":1.8,"mins":50,"price":22.0},{"id":"p15","name":"Wedding cupcake tower (48)","cat":"Cupcakes","recipeId":"r3","pieces":48,"pack":9.0,"deco":14.0,"mins":360,"price":null},{"id":"p16","name":"Mini brownie bites (24)","cat":"Treat boxes","recipeId":"r12","pieces":12,"pack":1.6,"deco":0,"mins":45,"price":8.0}],"orders":[{"id":"o1","ordered":"2025-12-20","customer":"Maria P.","contact":null,"pickup":"2026-01-03","time":"15:30","productId":"p3","qty":1,"price":null,"extras":12,"discount":null,"delivery":7.5,"deposit":35.0,"depositOn":"2025-12-20","paidOn":"2026-01-03","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o2","ordered":"2025-12-30","customer":"Laura G.","contact":null,"pickup":"2026-01-03","time":"15:30","productId":"p12","qty":3,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-01-03","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o3","ordered":"2025-12-27","customer":"Irene F.","contact":null,"pickup":"2026-01-06","time":"13:00","productId":"p6","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-01-06","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o4","ordered":"2025-12-29","customer":"Mark W.","contact":null,"pickup":"2026-01-06","time":"17:00","productId":"p12","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-01-06","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o5","ordered":"2026-01-06","customer":"Giorgos L.","contact":null,"pickup":"2026-01-09","time":"11:30","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-01-06","paidOn":"2026-01-09","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o6","ordered":"2026-01-03","customer":"Petros N.","contact":null,"pickup":"2026-01-12","time":"13:00","productId":"p6","qty":3,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-01-12","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o7","ordered":"2026-01-08","customer":"Helen B.","contact":null,"pickup":"2026-01-15","time":"13:00","productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":31.0,"depositOn":"2026-01-08","paidOn":"2026-01-15","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o8","ordered":"2026-01-02","customer":"Christina D.","contact":null,"pickup":"2026-01-15","time":"13:00","productId":"p7","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-01-15","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o9","ordered":"2025-12-31","customer":"Giorgos L.","contact":null,"pickup":"2026-01-18","time":"10:00","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-01-18","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o10","ordered":"2026-01-04","customer":"Maria P.","contact":null,"pickup":"2026-01-18","time":"17:00","productId":"p16","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-01-18","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o11","ordered":"2026-01-19","customer":"Giorgos L.","contact":null,"pickup":"2026-01-22","time":"17:00","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-01-19","paidOn":"2026-01-22","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o12","ordered":"2026-01-10","customer":"Daphne H.","contact":null,"pickup":"2026-01-24","time":"13:00","productId":"p12","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-01-24","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o13","ordered":"2026-01-21","customer":"Irene F.","contact":null,"pickup":"2026-02-02","time":"10:00","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-02-02","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o14","ordered":"2026-01-19","customer":"Yannis R.","contact":null,"pickup":"2026-02-02","time":null,"productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-01-19","paidOn":"2026-02-02","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o15","ordered":"2026-01-20","customer":"Eleni S.","contact":null,"pickup":"2026-02-02","time":null,"productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-01-20","paidOn":"2026-02-02","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o16","ordered":"2026-02-01","customer":"Thanos E.","contact":null,"pickup":"2026-02-05","time":"15:30","productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":35.0,"depositOn":"2026-02-01","paidOn":"2026-02-05","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o17","ordered":"2026-01-22","customer":"Kostas Z.","contact":null,"pickup":"2026-02-05","time":null,"productId":"p3","qty":1,"price":null,"extras":12,"discount":null,"delivery":null,"deposit":31.0,"depositOn":"2026-01-22","paidOn":"2026-02-05","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o18","ordered":"2026-02-01","customer":"Anna T.","contact":null,"pickup":"2026-02-10","time":null,"productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":21.0,"depositOn":"2026-02-01","paidOn":"2026-02-10","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o19","ordered":"2026-02-02","customer":"Anna T.","contact":null,"pickup":"2026-02-10","time":"10:00","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-02-02","paidOn":"2026-02-10","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o20","ordered":"2026-02-06","customer":"Olga C.","contact":null,"pickup":"2026-02-14","time":null,"productId":"p2","qty":1,"price":null,"extras":5,"discount":null,"delivery":5,"deposit":36.0,"depositOn":"2026-02-06","paidOn":"2026-02-14","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o21","ordered":"2026-01-30","customer":"Sofia M.","contact":null,"pickup":"2026-02-17","time":"15:30","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-01-30","paidOn":"2026-02-17","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o22","ordered":"2026-01-30","customer":"Giorgos L.","contact":null,"pickup":"2026-02-17","time":"10:00","productId":"p16","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-02-17","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o23","ordered":"2026-02-06","customer":"Vicky J.","contact":null,"pickup":"2026-02-20","time":null,"productId":"p9","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-02-20","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o24","ordered":"2026-01-31","customer":"Olga C.","contact":null,"pickup":"2026-02-20","time":"13:00","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-02-20","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o25","ordered":"2026-02-20","customer":"Yannis R.","contact":null,"pickup":"2026-02-23","time":"13:00","productId":"p8","qty":2,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-02-23","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o26","ordered":"2026-02-07","customer":"Laura G.","contact":null,"pickup":"2026-02-26","time":"13:00","productId":"p4","qty":1,"price":null,"extras":8,"discount":null,"delivery":null,"deposit":21.0,"depositOn":"2026-02-07","paidOn":"2026-02-26","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o27","ordered":"2026-02-10","customer":"Kostas Z.","contact":null,"pickup":"2026-02-26","time":"13:00","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-02-10","paidOn":"2026-02-26","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o28","ordered":"2026-02-22","customer":"Olga C.","contact":null,"pickup":"2026-03-03","time":"13:00","productId":"p7","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-03-03","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o29","ordered":"2026-02-25","customer":"Daphne H.","contact":null,"pickup":"2026-03-05","time":null,"productId":"p9","qty":2,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-03-05","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o30","ordered":"2026-02-13","customer":"Maria P.","contact":null,"pickup":"2026-03-05","time":"11:30","productId":"p4","qty":1,"price":null,"extras":12,"discount":null,"delivery":null,"deposit":23.0,"depositOn":"2026-02-13","paidOn":"2026-03-05","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o31","ordered":"2026-02-25","customer":"Nikos K.","contact":null,"pickup":"2026-03-05","time":"15:30","productId":"p8","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-03-05","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o32","ordered":"2026-03-10","customer":"Laura G.","contact":null,"pickup":"2026-03-14","time":"15:30","productId":"p6","qty":2,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-03-14","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o33","ordered":"2026-03-10","customer":"Petros N.","contact":null,"pickup":"2026-03-24","time":"13:00","productId":"p3","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":25.0,"depositOn":"2026-03-10","paidOn":null,"status":"Cancelled","channel":"Repeat customer","costEach":null,"notes":null},{"id":"o34","ordered":"2026-03-13","customer":"Sofia M.","contact":null,"pickup":"2026-04-02","time":"13:00","productId":"p15","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":75.0,"depositOn":"2026-03-13","paidOn":"2026-04-02","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o35","ordered":"2026-03-21","customer":"Irene F.","contact":null,"pickup":"2026-04-02","time":"15:30","productId":"p7","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-04-02","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o36","ordered":"2026-03-31","customer":"Petros N.","contact":null,"pickup":"2026-04-07","time":"17:00","productId":"p7","qty":2,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-04-07","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o37","ordered":"2026-03-31","customer":"Laura G.","contact":null,"pickup":"2026-04-07","time":null,"productId":"p14","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":14.0,"depositOn":"2026-03-31","paidOn":"2026-04-07","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o38","ordered":"2026-03-25","customer":"Thanos E.","contact":null,"pickup":"2026-04-07","time":"11:30","productId":"p5","qty":1,"price":null,"extras":5,"discount":null,"delivery":7.5,"deposit":23.0,"depositOn":"2026-03-25","paidOn":"2026-04-07","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o39","ordered":"2026-03-23","customer":"Dimitra A.","contact":null,"pickup":"2026-04-07","time":"15:30","productId":"p9","qty":2,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-04-07","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o40","ordered":"2026-04-03","customer":"Yannis R.","contact":null,"pickup":"2026-04-11","time":null,"productId":"p5","qty":1,"price":null,"extras":5,"discount":null,"delivery":7.5,"deposit":23.0,"depositOn":"2026-04-03","paidOn":"2026-04-11","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o41","ordered":"2026-04-08","customer":"Olga C.","contact":null,"pickup":"2026-04-11","time":"13:00","productId":"p6","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-04-11","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o42","ordered":"2026-03-25","customer":"Christina D.","contact":null,"pickup":"2026-04-11","time":"10:00","productId":"p6","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-04-11","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o43","ordered":"2026-03-27","customer":"Thanos E.","contact":null,"pickup":"2026-04-11","time":"17:00","productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":34.0,"depositOn":"2026-03-27","paidOn":null,"status":"Cancelled","channel":"WhatsApp","costEach":null,"notes":null},{"id":"o44","ordered":"2026-03-27","customer":"Anna T.","contact":null,"pickup":"2026-04-14","time":null,"productId":"p11","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-04-14","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o45","ordered":"2026-03-27","customer":"Sofia M.","contact":null,"pickup":"2026-04-14","time":"10:00","productId":"p4","qty":1,"price":null,"extras":5,"discount":null,"delivery":7.5,"deposit":23.0,"depositOn":"2026-03-27","paidOn":"2026-04-14","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o46","ordered":"2026-04-02","customer":"Mark W.","contact":null,"pickup":"2026-04-14","time":"13:00","productId":"p2","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":34.0,"depositOn":"2026-04-02","paidOn":"2026-04-14","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o47","ordered":"2026-03-29","customer":"Nikos K.","contact":null,"pickup":"2026-04-19","time":"10:00","productId":"p6","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-04-19","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o48","ordered":"2026-04-04","customer":"Maria P.","contact":null,"pickup":"2026-04-24","time":"15:30","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-04-24","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o49","ordered":"2026-04-03","customer":"Petros N.","contact":null,"pickup":"2026-04-24","time":"15:30","productId":"p12","qty":2,"price":null,"extras":null,"discount":3,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-04-24","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o50","ordered":"2026-04-15","customer":"Eleni S.","contact":null,"pickup":"2026-04-24","time":"13:00","productId":"p9","qty":3,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-04-24","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o51","ordered":"2026-04-14","customer":"Christina D.","contact":null,"pickup":"2026-04-26","time":"11:30","productId":"p11","qty":2,"price":null,"extras":null,"discount":3,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-04-26","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o52","ordered":"2026-04-08","customer":"Anna T.","contact":null,"pickup":"2026-04-26","time":"15:30","productId":"p6","qty":2,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-04-26","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o53","ordered":"2026-04-21","customer":"Yannis R.","contact":null,"pickup":"2026-04-26","time":"10:00","productId":"p7","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-04-26","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o54","ordered":"2026-04-23","customer":"Eleni S.","contact":null,"pickup":"2026-04-26","time":"15:30","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":39.0,"depositOn":"2026-04-23","paidOn":"2026-04-26","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o55","ordered":"2026-04-24","customer":"Sofia M.","contact":null,"pickup":"2026-04-30","time":null,"productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":35.0,"depositOn":"2026-04-24","paidOn":"2026-04-30","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o56","ordered":"2026-04-25","customer":"Giorgos L.","contact":null,"pickup":"2026-05-03","time":"15:30","productId":"p12","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-05-03","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o57","ordered":"2026-04-24","customer":"Sofia M.","contact":null,"pickup":"2026-05-03","time":null,"productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":35.0,"depositOn":"2026-04-24","paidOn":"2026-05-03","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o58","ordered":"2026-04-29","customer":"Vicky J.","contact":null,"pickup":"2026-05-03","time":"10:00","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-05-03","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o59","ordered":"2026-04-26","customer":"Eleni S.","contact":null,"pickup":"2026-05-03","time":"13:00","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":20.0,"depositOn":"2026-04-26","paidOn":"2026-05-03","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o60","ordered":"2026-04-24","customer":"Christina D.","contact":null,"pickup":"2026-05-08","time":"11:30","productId":"p6","qty":3,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-05-08","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o61","ordered":"2026-04-26","customer":"Mark W.","contact":null,"pickup":"2026-05-08","time":"11:30","productId":"p8","qty":2,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-05-08","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o62","ordered":"2026-04-28","customer":"Daphne H.","contact":null,"pickup":"2026-05-08","time":"11:30","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-04-28","paidOn":"2026-05-08","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o63","ordered":"2026-04-26","customer":"Maria P.","contact":null,"pickup":"2026-05-11","time":null,"productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-04-26","paidOn":"2026-05-11","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o64","ordered":"2026-05-07","customer":"Daphne H.","contact":null,"pickup":"2026-05-11","time":"17:00","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-05-07","paidOn":"2026-05-11","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o65","ordered":"2026-05-01","customer":"Maria P.","contact":null,"pickup":"2026-05-14","time":"17:00","productId":"p11","qty":2,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-05-14","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o66","ordered":"2026-05-07","customer":"Sofia M.","contact":null,"pickup":"2026-05-14","time":"10:00","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-05-07","paidOn":"2026-05-14","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o67","ordered":"2026-05-07","customer":"Petros N.","contact":null,"pickup":"2026-05-14","time":"13:00","productId":"p6","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-05-14","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o68","ordered":"2026-05-03","customer":"Petros N.","contact":null,"pickup":"2026-05-17","time":"11:30","productId":"p4","qty":1,"price":null,"extras":12,"discount":null,"delivery":5,"deposit":26.0,"depositOn":"2026-05-03","paidOn":"2026-05-17","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o69","ordered":"2026-05-05","customer":"Laura G.","contact":null,"pickup":"2026-05-17","time":"17:00","productId":"p10","qty":3,"price":null,"extras":null,"discount":3,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-05-17","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o70","ordered":"2026-05-14","customer":"Sofia M.","contact":null,"pickup":"2026-05-22","time":"10:00","productId":"p3","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":25.0,"depositOn":"2026-05-14","paidOn":"2026-05-22","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o71","ordered":"2026-05-13","customer":"Olga C.","contact":null,"pickup":"2026-05-22","time":null,"productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":34.0,"depositOn":"2026-05-13","paidOn":"2026-05-22","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o72","ordered":"2026-05-06","customer":"Mark W.","contact":null,"pickup":"2026-05-22","time":"15:30","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-05-06","paidOn":"2026-05-22","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o73","ordered":"2026-05-19","customer":"Eleni S.","contact":null,"pickup":"2026-05-26","time":"13:00","productId":"p1","qty":1,"price":null,"extras":8,"discount":null,"delivery":null,"deposit":40.0,"depositOn":"2026-05-19","paidOn":"2026-05-26","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o74","ordered":"2026-05-08","customer":"Yannis R.","contact":null,"pickup":"2026-05-26","time":"10:00","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":21.0,"depositOn":"2026-05-08","paidOn":"2026-05-26","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o75","ordered":"2026-05-16","customer":"Olga C.","contact":null,"pickup":"2026-05-26","time":"10:00","productId":"p10","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-05-26","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o76","ordered":"2026-05-26","customer":"Olga C.","contact":null,"pickup":"2026-05-29","time":"11:30","productId":"p12","qty":3,"price":null,"extras":null,"discount":3,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-05-29","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o77","ordered":"2026-05-17","customer":"Dimitra A.","contact":null,"pickup":"2026-05-29","time":null,"productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-05-29","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o78","ordered":"2026-05-21","customer":"Mark W.","contact":null,"pickup":"2026-05-31","time":"15:30","productId":"p9","qty":2,"price":null,"extras":null,"discount":3,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-05-31","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o79","ordered":"2026-05-19","customer":"Laura G.","contact":null,"pickup":"2026-05-31","time":"13:00","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":20.0,"depositOn":"2026-05-19","paidOn":"2026-05-31","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o80","ordered":"2026-05-26","customer":"Mark W.","contact":null,"pickup":"2026-06-04","time":"15:30","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-06-04","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o81","ordered":"2026-06-11","customer":"Daphne H.","contact":null,"pickup":"2026-06-15","time":"17:00","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":21.0,"depositOn":"2026-06-11","paidOn":"2026-06-15","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o82","ordered":"2026-06-10","customer":"Eleni S.","contact":null,"pickup":"2026-06-15","time":"15:30","productId":"p12","qty":3,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-06-15","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o83","ordered":"2026-06-11","customer":"Nikos K.","contact":null,"pickup":"2026-06-15","time":"10:00","productId":"p8","qty":3,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-06-15","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o84","ordered":"2026-06-15","customer":"Giorgos L.","contact":null,"pickup":"2026-06-19","time":null,"productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-06-15","paidOn":"2026-06-19","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o85","ordered":"2026-05-30","customer":"Eleni S.","contact":null,"pickup":"2026-06-19","time":"13:00","productId":"p8","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-06-19","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o86","ordered":"2026-06-17","customer":"Kostas Z.","contact":null,"pickup":"2026-06-26","time":"17:00","productId":"p7","qty":3,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-06-26","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o87","ordered":"2026-06-11","customer":"Maria P.","contact":null,"pickup":"2026-06-30","time":"13:00","productId":"p7","qty":2,"price":null,"extras":null,"discount":3,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-06-30","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o88","ordered":"2026-06-20","customer":"Anna T.","contact":null,"pickup":"2026-06-30","time":"13:00","productId":"p5","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":20.0,"depositOn":"2026-06-20","paidOn":"2026-06-30","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o89","ordered":"2026-06-25","customer":"Thanos E.","contact":null,"pickup":"2026-07-02","time":"10:00","productId":"p10","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-07-02","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o90","ordered":"2026-06-19","customer":"Yannis R.","contact":null,"pickup":"2026-07-05","time":"10:00","productId":"p1","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":39.0,"depositOn":"2026-06-19","paidOn":"2026-07-05","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o91","ordered":"2026-06-26","customer":"Laura G.","contact":null,"pickup":"2026-07-05","time":"10:00","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-07-05","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o92","ordered":"2026-06-22","customer":"Maria P.","contact":null,"pickup":"2026-07-05","time":"13:00","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":21.0,"depositOn":"2026-06-22","paidOn":"2026-07-05","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o93","ordered":"2026-07-01","customer":"Nikos K.","contact":null,"pickup":"2026-07-08","time":null,"productId":"p1","qty":1,"price":null,"extras":12,"discount":null,"delivery":null,"deposit":42.0,"depositOn":"2026-07-01","paidOn":"2026-07-08","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o94","ordered":"2026-06-23","customer":"Helen B.","contact":null,"pickup":"2026-07-08","time":"10:00","productId":"p3","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":28.0,"depositOn":"2026-06-23","paidOn":"2026-07-08","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o95","ordered":"2026-06-28","customer":"Eleni S.","contact":null,"pickup":"2026-07-11","time":"17:00","productId":"p3","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":25.0,"depositOn":"2026-06-28","paidOn":"2026-07-11","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o96","ordered":"2026-07-09","customer":"Dimitra A.","contact":null,"pickup":"2026-07-20","time":"17:00","productId":"p10","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-07-20","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o97","ordered":"2026-07-09","customer":"Vicky J.","contact":null,"pickup":"2026-07-23","time":"17:00","productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":31.0,"depositOn":"2026-07-09","paidOn":"2026-07-23","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o98","ordered":"2026-07-07","customer":"Giorgos L.","contact":null,"pickup":"2026-07-26","time":null,"productId":"p16","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-07-26","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o99","ordered":"2026-07-10","customer":"Sofia M.","contact":null,"pickup":"2026-07-26","time":"13:00","productId":"p2","qty":1,"price":null,"extras":12,"discount":null,"delivery":5,"deposit":40.0,"depositOn":"2026-07-10","paidOn":"2026-07-26","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o100","ordered":"2026-07-16","customer":"Irene F.","contact":null,"pickup":"2026-07-26","time":"11:30","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":21.0,"depositOn":"2026-07-16","paidOn":"2026-07-26","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o101","ordered":"2026-07-10","customer":"Maria P.","contact":null,"pickup":"2026-07-28","time":"10:00","productId":"p12","qty":2,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-07-28","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o102","ordered":"2026-07-24","customer":"Nikos K.","contact":null,"pickup":"2026-07-28","time":"17:00","productId":"p10","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-07-28","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o103","ordered":"2026-07-13","customer":"Katerina V.","contact":null,"pickup":"2026-07-28","time":"11:30","productId":"p6","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-07-28","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o104","ordered":"2026-07-21","customer":"Laura G.","contact":null,"pickup":"2026-07-31","time":"11:30","productId":"p7","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-07-31","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o105","ordered":"2026-07-26","customer":"Dimitra A.","contact":null,"pickup":"2026-08-02","time":"15:30","productId":"p6","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-08-02","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o106","ordered":"2026-07-25","customer":"Christina D.","contact":null,"pickup":"2026-08-02","time":"11:30","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-07-25","paidOn":"2026-08-02","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o107","ordered":"2026-07-31","customer":"Maria P.","contact":null,"pickup":"2026-08-05","time":"10:00","productId":"p8","qty":2,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-08-05","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o108","ordered":"2026-07-28","customer":"Helen B.","contact":null,"pickup":"2026-08-05","time":null,"productId":"p7","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-08-05","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o109","ordered":"2026-07-23","customer":"Kostas Z.","contact":null,"pickup":"2026-08-10","time":"17:00","productId":"p6","qty":2,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-08-10","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o110","ordered":"2026-08-08","customer":"Laura G.","contact":null,"pickup":"2026-08-15","time":"17:00","productId":"p1","qty":1,"price":null,"extras":12,"discount":null,"delivery":5,"deposit":45.0,"depositOn":"2026-08-08","paidOn":"2026-08-15","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o111","ordered":"2026-08-06","customer":"Eleni S.","contact":null,"pickup":"2026-08-15","time":"10:00","productId":"p8","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-08-15","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o112","ordered":"2026-07-25","customer":"Christina D.","contact":null,"pickup":"2026-08-15","time":"10:00","productId":"p9","qty":2,"price":null,"extras":null,"discount":3,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-08-15","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o113","ordered":"2026-08-03","customer":"Daphne H.","contact":null,"pickup":"2026-08-23","time":"10:00","productId":"p9","qty":3,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-08-23","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o114","ordered":"2026-08-10","customer":"Petros N.","contact":null,"pickup":"2026-08-26","time":"15:30","productId":"p16","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-08-26","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o115","ordered":"2026-08-18","customer":"Sofia M.","contact":null,"pickup":"2026-08-31","time":null,"productId":"p12","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-08-31","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o116","ordered":"2026-08-22","customer":"Yannis R.","contact":null,"pickup":"2026-09-03","time":"17:00","productId":"p12","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-09-03","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o117","ordered":"2026-09-05","customer":"Thanos E.","contact":null,"pickup":"2026-09-10","time":null,"productId":"p3","qty":1,"price":null,"extras":5,"discount":null,"delivery":7.5,"deposit":31.0,"depositOn":"2026-09-05","paidOn":"2026-09-10","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o118","ordered":"2026-08-26","customer":"Christina D.","contact":null,"pickup":"2026-09-14","time":"15:30","productId":"p5","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":20.0,"depositOn":"2026-08-26","paidOn":"2026-09-14","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o119","ordered":"2026-09-08","customer":"Maria P.","contact":null,"pickup":"2026-09-16","time":"11:30","productId":"p12","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-09-16","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o120","ordered":"2026-08-27","customer":"Giorgos L.","contact":null,"pickup":"2026-09-16","time":"15:30","productId":"p4","qty":1,"price":null,"extras":5,"discount":null,"delivery":7.5,"deposit":23.0,"depositOn":"2026-08-27","paidOn":"2026-09-16","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o121","ordered":"2026-09-06","customer":"Nikos K.","contact":null,"pickup":"2026-09-19","time":"15:30","productId":"p1","qty":1,"price":null,"extras":8,"discount":null,"delivery":null,"deposit":40.0,"depositOn":"2026-09-06","paidOn":"2026-09-19","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o122","ordered":"2026-09-06","customer":"Kostas Z.","contact":null,"pickup":"2026-09-19","time":null,"productId":"p10","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-09-19","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o123","ordered":"2026-09-16","customer":"Giorgos L.","contact":null,"pickup":"2026-09-22","time":"10:00","productId":"p7","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-09-22","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o124","ordered":"2026-09-08","customer":"Vicky J.","contact":null,"pickup":"2026-09-22","time":"15:30","productId":"p4","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":20.0,"depositOn":"2026-09-08","paidOn":"2026-09-22","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o125","ordered":"2026-09-14","customer":"Vicky J.","contact":null,"pickup":"2026-09-22","time":null,"productId":"p4","qty":1,"price":null,"extras":8,"discount":null,"delivery":7.5,"deposit":25.0,"depositOn":"2026-09-14","paidOn":"2026-09-22","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o126","ordered":"2026-09-19","customer":"Helen B.","contact":null,"pickup":"2026-09-24","time":"13:00","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-09-19","paidOn":"2026-09-24","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o127","ordered":"2026-09-18","customer":"Thanos E.","contact":null,"pickup":"2026-09-28","time":"15:30","productId":"p16","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-09-28","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o128","ordered":"2026-09-14","customer":"Olga C.","contact":null,"pickup":"2026-09-28","time":"15:30","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-09-14","paidOn":"2026-09-28","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o129","ordered":"2026-09-10","customer":"Maria P.","contact":null,"pickup":"2026-09-28","time":"10:00","productId":"p12","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-09-28","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o130","ordered":"2026-09-19","customer":"Anna T.","contact":null,"pickup":"2026-10-02","time":"13:00","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-10-02","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o131","ordered":"2026-09-18","customer":"Daphne H.","contact":null,"pickup":"2026-10-04","time":"15:30","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-09-18","paidOn":"2026-10-04","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o132","ordered":"2026-09-24","customer":"Anna T.","contact":null,"pickup":"2026-10-04","time":"13:00","productId":"p3","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":25.0,"depositOn":"2026-09-24","paidOn":"2026-10-04","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o133","ordered":"2026-10-01","customer":"Dimitra A.","contact":null,"pickup":"2026-10-09","time":"10:00","productId":"p5","qty":1,"price":null,"extras":5,"discount":null,"delivery":5,"deposit":22.0,"depositOn":"2026-10-01","paidOn":"2026-10-09","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o134","ordered":"2026-10-04","customer":"Laura G.","contact":null,"pickup":"2026-10-09","time":"10:00","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-10-04","paidOn":"2026-10-09","status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o135","ordered":"2026-09-27","customer":"Eleni S.","contact":null,"pickup":"2026-10-12","time":"10:00","productId":"p5","qty":1,"price":null,"extras":12,"discount":null,"delivery":7.5,"deposit":27.0,"depositOn":"2026-09-27","paidOn":"2026-10-12","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o136","ordered":"2026-09-25","customer":"Daphne H.","contact":null,"pickup":"2026-10-12","time":"10:00","productId":"p2","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":34.0,"depositOn":"2026-09-25","paidOn":"2026-10-12","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o137","ordered":"2026-10-14","customer":"Petros N.","contact":null,"pickup":"2026-10-17","time":"17:00","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-10-14","paidOn":"2026-10-17","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o138","ordered":"2026-09-26","customer":"Maria P.","contact":null,"pickup":"2026-10-17","time":"15:30","productId":"p11","qty":3,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-10-17","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o139","ordered":"2026-10-02","customer":"Helen B.","contact":null,"pickup":"2026-10-17","time":"11:30","productId":"p9","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-10-17","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o140","ordered":"2026-10-06","customer":"Petros N.","contact":null,"pickup":"2026-10-20","time":"15:30","productId":"p10","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-10-20","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o141","ordered":"2026-10-02","customer":"Maria P.","contact":null,"pickup":"2026-10-20","time":null,"productId":"p3","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":25.0,"depositOn":"2026-10-02","paidOn":"2026-10-20","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o142","ordered":"2026-10-17","customer":"Nikos K.","contact":null,"pickup":"2026-10-22","time":"15:30","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":null,"depositOn":null,"paidOn":"2026-10-22","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o143","ordered":"2026-10-07","customer":"Kostas Z.","contact":null,"pickup":"2026-10-25","time":"11:30","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":40.0,"depositOn":"2026-10-07","paidOn":"2026-10-25","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o144","ordered":"2026-10-11","customer":"Maria P.","contact":null,"pickup":"2026-10-25","time":"11:30","productId":"p3","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":28.0,"depositOn":"2026-10-11","paidOn":"2026-10-25","status":null,"channel":"Repeat customer","costEach":null,"notes":null},{"id":"o145","ordered":"2026-10-14","customer":"Helen B.","contact":null,"pickup":"2026-10-25","time":"11:30","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-10-14","paidOn":"2026-10-25","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o146","ordered":"2026-10-08","customer":"Sofia M.","contact":null,"pickup":"2026-10-28","time":"10:00","productId":"p12","qty":3,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-10-28","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o147","ordered":"2026-10-16","customer":"Thanos E.","contact":null,"pickup":"2026-10-28","time":"17:00","productId":"p5","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":20.0,"depositOn":"2026-10-16","paidOn":"2026-10-28","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o148","ordered":"2026-10-28","customer":"Petros N.","contact":null,"pickup":"2026-10-31","time":"11:30","productId":"p2","qty":1,"price":null,"extras":5,"discount":null,"delivery":null,"deposit":34.0,"depositOn":"2026-10-28","paidOn":"2026-10-31","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o149","ordered":"2026-10-27","customer":"Katerina V.","contact":null,"pickup":"2026-10-31","time":"15:30","productId":"p6","qty":3,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-10-31","status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o150","ordered":"2026-11-01","customer":"Dimitra A.","contact":null,"pickup":"2026-11-05","time":"10:00","productId":"p9","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-11-05","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o151","ordered":"2026-10-22","customer":"Thanos E.","contact":null,"pickup":"2026-11-05","time":"13:00","productId":"p5","qty":1,"price":null,"extras":12,"discount":null,"delivery":null,"deposit":23.0,"depositOn":"2026-10-22","paidOn":"2026-11-05","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o152","ordered":"2026-10-30","customer":"Daphne H.","contact":null,"pickup":"2026-11-05","time":"13:00","productId":"p6","qty":3,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-11-05","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o153","ordered":"2026-10-21","customer":"Giorgos L.","contact":null,"pickup":"2026-11-05","time":"17:00","productId":"p8","qty":2,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":"2026-11-05","status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o154","ordered":"2026-10-29","customer":"Petros N.","contact":null,"pickup":"2026-11-07","time":"10:00","productId":"p6","qty":3,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":"2026-11-07","status":null,"channel":"Word of mouth","costEach":null,"notes":null},{"id":"o155","ordered":"2026-10-18","customer":"Anna T.","contact":null,"pickup":"2026-11-07","time":"15:30","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":5,"deposit":20.0,"depositOn":"2026-10-18","paidOn":"2026-11-07","status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o156","ordered":"2026-11-04","customer":"Katerina V.","contact":null,"pickup":"2026-11-07","time":"17:00","productId":"p1","qty":1,"price":null,"extras":5,"discount":null,"delivery":7.5,"deposit":42.0,"depositOn":"2026-11-04","paidOn":"2026-11-07","status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o157","ordered":"2026-11-02","customer":"Anna T.","contact":null,"pickup":"2026-11-07","time":"13:00","productId":"p1","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":36.0,"depositOn":"2026-11-02","paidOn":null,"status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o158","ordered":"2026-11-04","customer":"Yannis R.","contact":null,"pickup":"2026-11-10","time":"10:00","productId":"p6","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":null,"status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o159","ordered":"2026-11-02","customer":"Yannis R.","contact":null,"pickup":"2026-11-10","time":"17:00","productId":"p4","qty":1,"price":null,"extras":8,"discount":null,"delivery":null,"deposit":21.0,"depositOn":"2026-11-02","paidOn":null,"status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o160","ordered":"2026-11-09","customer":"Thanos E.","contact":null,"pickup":"2026-11-13","time":"10:00","productId":"p2","qty":1,"price":null,"extras":8,"discount":null,"delivery":null,"deposit":35.0,"depositOn":"2026-11-09","paidOn":null,"status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o161","ordered":"2026-10-26","customer":"Maria P.","contact":null,"pickup":"2026-11-13","time":"17:00","productId":"p6","qty":3,"price":null,"extras":null,"discount":3,"delivery":null,"deposit":null,"depositOn":null,"paidOn":null,"status":null,"channel":"Market stall","costEach":null,"notes":null},{"id":"o162","ordered":"2026-10-25","customer":"Mark W.","contact":null,"pickup":"2026-11-13","time":"17:00","productId":"p2","qty":1,"price":null,"extras":5,"discount":null,"delivery":5,"deposit":36.0,"depositOn":"2026-10-25","paidOn":null,"status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o163","ordered":"2026-11-13","customer":"Eleni S.","contact":null,"pickup":"2026-11-18","time":"10:00","productId":"p1","qty":1,"price":null,"extras":8,"discount":null,"delivery":7.5,"deposit":44.0,"depositOn":"2026-11-13","paidOn":null,"status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o164","ordered":"2026-10-30","customer":"Eleni S.","contact":null,"pickup":"2026-11-18","time":null,"productId":"p10","qty":1,"price":null,"extras":null,"discount":null,"delivery":7.5,"deposit":null,"depositOn":null,"paidOn":null,"status":null,"channel":"Website","costEach":null,"notes":null},{"id":"o165","ordered":"2026-11-03","customer":"Yannis R.","contact":null,"pickup":"2026-11-18","time":"15:30","productId":"p13","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":null,"depositOn":null,"paidOn":null,"status":null,"channel":"WhatsApp","costEach":null,"notes":null},{"id":"o166","ordered":"2026-11-05","customer":"Kostas Z.","contact":null,"pickup":"2026-11-18","time":"15:30","productId":"p4","qty":1,"price":null,"extras":5,"discount":null,"delivery":5,"deposit":22.0,"depositOn":"2026-11-05","paidOn":null,"status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o167","ordered":"2026-11-12","customer":"Anna T.","contact":null,"pickup":"2026-11-21","time":"13:00","productId":"p4","qty":1,"price":null,"extras":null,"discount":null,"delivery":null,"deposit":17.0,"depositOn":"2026-11-12","paidOn":null,"status":null,"channel":"Instagram","costEach":null,"notes":null},{"id":"o168","ordered":"2026-11-02","customer":"Giorgos L.","contact":null,"pickup":"2026-11-21","time":"11:30","productId":"p9","qty":2,"price":null,"extras":null,"discount":3,"delivery":5,"deposit":null,"depositOn":null,"paidOn":null,"status":null,"channel":"Facebook","costEach":null,"notes":null},{"id":"o169","ordered":"2026-11-08","customer":"Laura G.","contact":null,"pickup":"2026-12-19","time":null,"productId":"p15","qty":1,"price":210.0,"extras":null,"discount":null,"delivery":15,"deposit":null,"depositOn":null,"paidOn":null,"status":"Enquiry","channel":"Website","costEach":null,"notes":null}],"sampleAsOf":"2026-11-10"};</script>
+<script>/* Home Bakery Pricing & Profit app: UI. Data stays on this device (IndexedDB, localStorage fallback). */
+(function () {
+  "use strict";
+  var C = window.Calc, SAMPLE = window.SAMPLE_DATA;
+  var KEY = "bakery-app-state-v1";
+  var STATUSES = ["Enquiry", "Confirmed", "Baked", "Delivered", "Cancelled"];
+  var S = null;                       // the state
+  var view = { tab: "today", orderFilter: "upcoming", priceSeg: "products", ingSeg: "shop", moreSeg: "numbers",
+               numbers: "month", q: "" };
+  var $app = document.getElementById("app");
+
+  // ---------------------------------------------------------------- storage
+  var store = (function () {
+    var dbp = null;
+    function db() {
+      if (dbp) return dbp;
+      dbp = new Promise(function (res, rej) {
+        try {
+          var r = indexedDB.open("bakery-app", 1);
+          r.onupgradeneeded = function () { r.result.createObjectStore("kv"); };
+          r.onsuccess = function () { res(r.result); };
+          r.onerror = function () { rej(r.error); };
+        } catch (e) { rej(e); }
+      });
+      return dbp;
+    }
+    function get() {
+      return db().then(function (d) {
+        return new Promise(function (res, rej) {
+          var q = d.transaction("kv").objectStore("kv").get(KEY);
+          q.onsuccess = function () { res(q.result || null); }; q.onerror = function () { rej(q.error); };
+        });
+      }).catch(function () { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } });
+    }
+    function set(v) {
+      try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* storage full or blocked */ }
+      return db().then(function (d) {
+        return new Promise(function (res) {
+          var t = d.transaction("kv", "readwrite"); t.objectStore("kv").put(v, KEY);
+          t.oncomplete = function () { res(); }; t.onerror = function () { res(); };
+        });
+      }).catch(function () {});
+    }
+    return { get: get, set: set };
+  })();
+  function save() { S.savedAt = new Date().toISOString(); store.set(S); }
+
+  // ---------------------------------------------------------------- helpers
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var nf2 = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nf0 = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+  function money(x) { return (S.settings.currency || "") + nf2.format(x || 0); }
+  function n2(x) { return nf0.format(x || 0); }
+  function parseNum(v) { if (v === "" || v == null) return null; var n = Number(String(v).replace(/\s/g, "").replace(",", ".")); return isFinite(n) ? n : null; }
+  function uid(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  var DEC = (1.5).toLocaleString().indexOf(",") >= 0 ? "," : ".";
+  function fmtDate(s, withDay) {
+    if (!s) return "";
+    var d = new Date(C.day(s) * 86400000);
+    return d.toLocaleDateString(undefined, withDay ? { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" } :
+      { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
+  }
+  function asOf() { return C.today(); }
+  function pill(p) { return '<span class="pill ' + p.k + '">' + esc(p.t) + "</span>"; }
+  function flagPill(f) {
+    return f === "ok" ? pill({ t: "✓ OK", k: "ok" }) : f === "under-rate" ? pill({ t: "● Under your rate", k: "warn" }) :
+      pill({ t: "▲ Under cost", k: "bad" });
+  }
+  function toast(t) {
+    var d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d);
+    setTimeout(function () { d.remove(); }, 2200);
+  }
+  function opts(list, sel, blank) {
+    return (blank !== undefined ? '<option value="">' + esc(blank) + "</option>" : "") + list.map(function (o) {
+      var v = typeof o === "string" ? o : o.v, t = typeof o === "string" ? o : o.t;
+      return '<option value="' + esc(v) + '"' + (String(v) === String(sel == null ? "" : sel) ? " selected" : "") + ">" + esc(t) + "</option>";
+    }).join("");
+  }
+  function field(label, html) { return '<label class="f"><span>' + esc(label) + "</span>" + html + "</label>"; }
+  function inp(name, val, type, extra) {
+    type = type || "text";
+    var im = type === "num" ? ' inputmode="decimal"' : "";
+    if (type === "num") { type = "text"; val = val == null ? "" : String(val).replace(".", DEC); }
+    return '<input class="i" name="' + name + '" type="' + type + '" value="' + esc(val == null ? "" : val) + '"' + im + (extra || "") + ">";
+  }
+  function form(el) {
+    var o = {};
+    el.querySelectorAll("[name]").forEach(function (x) { o[x.name] = x.type === "checkbox" ? x.checked : x.value; });
+    return o;
+  }
+  function sorted(list, key) { return list.slice().sort(function (a, b) { return String(a[key] || "").localeCompare(String(b[key] || "")); }); }
+
+  // ---------------------------------------------------------------- icons
+  var IC = {
+    today: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+    orders: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>',
+    price: '<svg viewBox="0 0 24 24"><path d="M3 12l9-9h8v8l-9 9z"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>',
+    ing: '<svg viewBox="0 0 24 24"><path d="M5 9h14l-1.5 11h-11z"/><path d="M8 9a4 4 0 0 1 8 0"/></svg>',
+    more: '<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>'
+  };
+
+  // ---------------------------------------------------------------- render
+  function render() {
+    if (!S) return;
+    var body = { today: renderToday, orders: renderOrders, price: renderPrice, ing: renderIng, more: renderMore }[view.tab]();
+    var titles = { today: "Today", orders: "Orders", price: "Price it", ing: "Ingredients", more: "Numbers" };
+    $app.innerHTML = '<div class="app"><header class="top"><h1>' + titles[view.tab] + '</h1><div class="brand"><i></i>Bakery Pricing &amp; Profit</div></header>' +
+      body + "</div>" + nav() + ((view.tab === "today" || view.tab === "orders") && S.products.length ? '<button class="fab" data-a="new-order">+ Order</button>' : "") +
+      (view.tab === "price" ? '<button class="fab" data-a="' + (view.priceSeg === "products" ? "new-product" : "new-recipe") + '">+ ' + (view.priceSeg === "products" ? "Product" : "Recipe") + "</button>" : "") +
+      (view.tab === "ing" && view.ingSeg === "all" ? '<button class="fab" data-a="new-ing">+ Ingredient</button>' : "");
+  }
+  function nav() {
+    var t = [["today", "Today"], ["orders", "Orders"], ["price", "Price it"], ["ing", "Ingredients"], ["more", "Numbers"]];
+    return '<nav class="tabs"><div class="in">' + t.map(function (x) {
+      return '<button data-a="tab" data-v="' + x[0] + '" class="' + (view.tab === x[0] ? "on" : "") + '">' + IC[x[0]] + x[1] + "</button>";
+    }).join("") + "</div></nav>";
+  }
+
+  function monthRange(off) {
+    var t = new Date(), y = t.getFullYear(), m = t.getMonth() + (off || 0);
+    var a = new Date(Date.UTC(y, m, 1)), b = new Date(Date.UTC(y, m + 1, 0));
+    return [a.toISOString().slice(0, 10), b.toISOString().slice(0, 10), a];
+  }
+
+  function orderRow(o) {
+    var oi = C.orderInfo(S, o, asOf()), p = oi.product;
+    return '<div class="row" data-a="edit-order" data-id="' + o.id + '"><div class="main"><div class="t">' + esc(o.customer || "No name") +
+      " · " + esc(p ? p.name : "No product") + (o.qty > 1 ? " ×" + o.qty : "") + '</div><div class="sub">' + fmtDate(o.pickup, true) +
+      (o.time ? " · " + esc(o.time) : "") + " · " + pill(oi.pill) + '</div></div><div class="amt">' + money(oi.total) +
+      (oi.balance > 0 ? "<small>" + money(oi.balance) + " due</small>" : "<small>" + esc(oi.status) + "</small>") + "</div></div>";
+  }
+
+  function renderToday() {
+    if (!S.orders.length && !S.products.length) return welcome();
+    var r = monthRange(0), t = C.totals(S, r[0], r[1], asOf()), a = asOf(), ad = C.day(a);
+    var up = S.orders.filter(function (o) { var oi = C.orderInfo(S, o, a); return oi.open && o.pickup && C.day(o.pickup) >= ad && C.day(o.pickup) <= ad + 7; })
+      .sort(function (x, y) { return (x.pickup + (x.time || "")).localeCompare(y.pickup + (y.time || "")); });
+    var due = S.orders.filter(function (o) { var oi = C.orderInfo(S, o, a); return oi.status === "Delivered" && oi.balance > 0; });
+    var late = S.orders.filter(function (o) { var oi = C.orderInfo(S, o, a); return oi.open && o.pickup && C.day(o.pickup) < ad; });
+    var shop = C.shopping(S, a), buy = shop.filter(function (x) { return x.label.indexOf("Buy") === 0 || x.label === "Needed"; });
+    var mname = r[2].toLocaleDateString(undefined, { month: "long", timeZone: "UTC" });
+    var ph = t.perHour, rate = C.num(S.settings.rate);
+    var h = '<p class="muted small" style="margin:-4px 0 12px">' + fmtDate(a, true) + "</p>";
+    h += '<div class="kpis"><div class="kpi"><div class="l">Sales, ' + esc(mname) + '</div><div class="v">' + money(t.sales) + '</div><div class="s">' + t.orders + " orders</div></div>" +
+      '<div class="kpi"><div class="l">Profit from orders</div><div class="v">' + money(t.profit) + '</div><div class="s">before running costs</div></div>' +
+      '<div class="kpi acc"><div class="l">Earned per hour</div><div class="v">' + (ph === null ? "–" : money(ph)) + '</div><div class="s">' +
+      (ph === null ? "no hours yet" : (ph >= rate ? "✓ above" : "● below") + " your " + money(rate) + " goal") + "</div></div>" +
+      '<div class="kpi"><div class="l">Still to collect</div><div class="v">' + money(due.reduce(function (s, o) { return s + C.orderInfo(S, o, a).balance; }, 0)) +
+      '</div><div class="s">' + due.length + " delivered, unpaid</div></div></div>";
+    if (late.length) h += '<div class="warnbox">▲ ' + late.length + (late.length === 1 ? " order is" : " orders are") + " past the pickup date but not marked Delivered. Open Orders to update.</div>";
+    h += '<div class="card"><h2>Next 7 days</h2>' + (up.length ? up.map(orderRow).join("") : '<div class="empty">No pickups in the next 7 days.</div>') + "</div>";
+    if (due.length) h += '<div class="card"><h2>Balance due</h2>' + due.map(orderRow).join("") + "</div>";
+    h += '<div class="card" data-a="tab" data-v="ing" style="cursor:pointer"><h2>Shopping list</h2>' + (buy.length ?
+      buy.slice(0, 5).map(function (x) { return '<div class="row"><div class="main"><div class="t">' + esc(x.ing.name) + '</div></div><span class="pill ' + (x.label === "Needed" ? "info" : "warn") + '">' + esc(x.label) + "</span></div>"; }).join("") +
+      (buy.length > 5 ? '<div class="muted small">+ ' + (buy.length - 5) + " more</div>" : "") : '<div class="empty">Nothing to buy for the next ' + S.settings.shopDays + " days.</div>") + "</div>";
+    return h;
+  }
+
+  function welcome() {
+    return '<div class="card welcome"><h2>Welcome</h2><p class="muted">Price your bakes, keep your orders and see what you really earn per hour. Everything stays on this device.</p>' +
+      '<div class="btns"><button class="btn" data-a="load-sample">Look around with sample data</button><button class="btn ghost" data-a="start-empty">Start with my own</button></div>' +
+      '<p class="muted small">Starting with your own? Add ingredients first, then a recipe, then a product.</p></div>';
+  }
+
+  function renderOrders() {
+    var a = asOf(), ad = C.day(a), f = view.orderFilter, q = view.q.toLowerCase();
+    var list = S.orders.filter(function (o) {
+      var oi = C.orderInfo(S, o, a);
+      if (q && ((o.customer || "") + " " + (oi.product ? oi.product.name : "") + " " + (o.notes || "")).toLowerCase().indexOf(q) < 0) return false;
+      if (f === "upcoming") return oi.open || oi.status === "Enquiry";
+      if (f === "unpaid") return oi.balance > 0;
+      if (f === "done") return oi.status === "Delivered";
+      return true;
+    });
+    list.sort(function (x, y) { var k = (x.pickup || "") + (x.time || ""), l = (y.pickup || "") + (y.time || ""); return f === "upcoming" ? k.localeCompare(l) : l.localeCompare(k); });
+    var chips = [["upcoming", "Coming up"], ["unpaid", "Unpaid"], ["done", "Delivered"], ["all", "All"]];
+    return '<div class="chips">' + chips.map(function (c) { return '<button data-a="ofilter" data-v="' + c[0] + '" class="' + (f === c[0] ? "on" : "") + '">' + c[1] + "</button>"; }).join("") + "</div>" +
+      '<input class="i" placeholder="Search customer or product" data-a="search" value="' + esc(view.q) + '" style="margin-bottom:12px">' +
+      '<div class="card">' + (list.length ? list.slice(0, 200).map(orderRow).join("") : '<div class="empty">No orders here yet.</div>') + "</div>";
+  }
+
+  function renderPrice() {
+    var seg = '<div class="seg"><button data-a="pseg" data-v="products" class="' + (view.priceSeg === "products" ? "on" : "") + '">Products</button><button data-a="pseg" data-v="recipes" class="' + (view.priceSeg === "recipes" ? "on" : "") + '">Recipes</button></div>';
+    if (view.priceSeg === "recipes") {
+      return seg + '<div class="card">' + (S.recipes.length ? sorted(S.recipes, "name").map(function (r) {
+        var ri = C.recipeInfo(S, r);
+        return '<div class="row" data-a="edit-recipe" data-id="' + r.id + '"><div class="main"><div class="t">' + esc(r.name) + '</div><div class="sub">Makes ' + n2(r.yield) + " · " + ri.lines + " ingredients" +
+          (ri.problems ? ' · <span class="pill warn">' + ri.problems + " to fix</span>" : "") + '</div></div><div class="amt">' + money(ri.cost) + "<small>" + (ri.perPiece === null ? "" : money(ri.perPiece) + " each") + "</small></div></div>";
+      }).join("") : '<div class="empty">No recipes yet. Add ingredients first, then a recipe.</div>') + "</div>";
+    }
+    var rate = C.num(S.settings.rate);
+    return seg + '<p class="muted small" style="margin:-4px 0 10px">Your rate: ' + money(rate) + " an hour · markup " + Math.round(C.num(S.settings.markup) * 100) + "%</p>" +
+      '<div class="card">' + (S.products.length ? sorted(S.products, "name").map(function (p) {
+        var pi = C.productInfo(S, p);
+        return '<div class="row" data-a="edit-product" data-id="' + p.id + '"><div class="main"><div class="t">' + esc(p.name) + '</div><div class="sub">' +
+          flagPill(pi.flag) + " " + (pi.perHour === null ? "" : money(pi.perHour) + "/h") + '</div></div><div class="amt">' + money(pi.used) + "<small>suggested " + money(pi.sugg) + "</small></div></div>";
+      }).join("") : '<div class="empty">No products yet.</div>') + "</div>";
+  }
+
+  function renderIng() {
+    var seg = '<div class="seg"><button data-a="iseg" data-v="shop" class="' + (view.ingSeg === "shop" ? "on" : "") + '">Shopping list</button><button data-a="iseg" data-v="all" class="' + (view.ingSeg === "all" ? "on" : "") + '">All ingredients</button></div>';
+    if (view.ingSeg === "shop") {
+      var shop = C.shopping(S, asOf());
+      return seg + '<p class="muted small" style="margin:-4px 0 10px">For confirmed orders with pickup in the next ' + S.settings.shopDays + " days (change in Settings). Packs on hand are optional.</p>" +
+        '<div class="card">' + (shop.length ? shop.map(function (x) {
+          var k = x.label.indexOf("Buy") === 0 ? "warn" : x.label === "Needed" ? "info" : x.label === "Low" ? "bad" : "ok";
+          return '<div class="row" data-a="edit-ing" data-id="' + x.ing.id + '"><div class="main"><div class="t">' + esc(x.ing.name) + '</div><div class="sub">' +
+            (x.packs === null ? "" : "Need " + n2(x.packs) + " pack" + (x.packs === 1 ? "" : "s") + " (" + n2(Math.round(x.needBase)) + " " + x.base + ")") +
+            (C.isNum(x.ing.onHand) ? (x.packs === null ? "Have " : " · have ") + n2(x.ing.onHand) : "") + '</div></div><span class="pill ' + k + '">' + esc(x.label) + "</span></div>";
+        }).join("") : '<div class="empty">Nothing needed for the coming days.</div>') + "</div>";
+    }
+    return seg + '<div class="card">' + (S.ingredients.length ? sorted(S.ingredients, "name").map(function (g) {
+      var ii = C.ingInfo(S, g);
+      return '<div class="row" data-a="edit-ing" data-id="' + g.id + '"><div class="main"><div class="t">' + esc(g.name) + '</div><div class="sub">' + n2(g.size) + " " + esc(g.unit) + " for " + money(g.price) + '</div></div><div class="amt">' +
+        (ii.perBase === null ? '<span class="pill warn">Check</span>' : (S.settings.currency || "") + (ii.perBase < 0.1 ? ii.perBase.toFixed(4) : ii.perBase.toFixed(3)) + "<small>per " + ii.base + "</small>") + "</div></div>";
+    }).join("") : '<div class="empty">No ingredients yet.</div>') + "</div>";
+  }
+
+  function renderMore() {
+    var seg = '<div class="seg"><button data-a="mseg" data-v="numbers" class="' + (view.moreSeg === "numbers" ? "on" : "") + '">Numbers</button><button data-a="mseg" data-v="settings" class="' + (view.moreSeg === "settings" ? "on" : "") + '">Settings & backup</button></div>';
+    return seg + (view.moreSeg === "numbers" ? renderNumbers() : renderSettings());
+  }
+
+  function renderNumbers() {
+    var t0 = new Date(), y = t0.getFullYear(), a = asOf(), from, to, label;
+    if (view.numbers === "month") { var r = monthRange(0); from = r[0]; to = r[1]; label = "This month"; }
+    else if (view.numbers === "last") { var r2 = monthRange(-1); from = r2[0]; to = r2[1]; label = "Last month"; }
+    else { from = y + "-01-01"; to = y + "-12-31"; label = "This year"; }
+    var t = C.totals(S, from, to, a), rate = C.num(S.settings.rate);
+    var h = '<div class="chips">' + [["month", "This month"], ["last", "Last month"], ["year", "This year"]].map(function (c) {
+      return '<button data-a="nper" data-v="' + c[0] + '" class="' + (view.numbers === c[0] ? "on" : "") + '">' + c[1] + "</button>"; }).join("") + "</div>";
+    h += '<div class="kpis"><div class="kpi"><div class="l">Sales</div><div class="v">' + money(t.sales) + '</div><div class="s">' + t.orders + " orders · " + t.cancelled + ' cancelled</div></div>' +
+      '<div class="kpi"><div class="l">Profit from orders</div><div class="v">' + money(t.profit) + '</div><div class="s">before running costs</div></div>' +
+      '<div class="kpi acc"><div class="l">Earned per hour</div><div class="v">' + (t.perHour === null ? "–" : money(t.perHour)) + '</div><div class="s">goal ' + money(rate) + '</div></div>' +
+      '<div class="kpi"><div class="l">Hours worked</div><div class="v">' + n2(Math.round(t.hours * 10) / 10) + '</div><div class="s">average order ' + money(t.orders ? t.total / t.orders : 0) + "</div></div></div>";
+    var months = [], max = 0;
+    for (var m = 0; m < 12; m++) {
+      var a1 = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10), b1 = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
+      var p = C.totals(S, a1, b1, a).profit; months.push(p); if (p > max) max = p;
+    }
+    h += '<div class="card"><h2>Profit by month · ' + y + '</h2><div class="bars">' + months.map(function (p, i) {
+      return '<div><b style="height:' + (max > 0 ? Math.max(0, p) / max * 100 : 0) + '%"></b>' + "JFMAMJJASOND"[i] + "</div>"; }).join("") + "</div></div>";
+    var by = {};
+    S.orders.forEach(function (o) {
+      if (!o.pickup || C.day(o.pickup) < C.day(from) || C.day(o.pickup) > C.day(to)) return;
+      var oi = C.orderInfo(S, o, a); if (!oi.product || oi.status === "Enquiry") return;
+      by[oi.product.name] = (by[oi.product.name] || 0) + oi.profit;
+    });
+    var top = Object.keys(by).map(function (k) { return [k, by[k]]; }).sort(function (x, z) { return z[1] - x[1]; }).slice(0, 5);
+    h += '<div class="card"><h2>Top products · ' + label + "</h2>" + (top.length ? top.map(function (x) {
+      return '<div class="row" style="cursor:default"><div class="main"><div class="t">' + esc(x[0]) + '</div><div class="meter"><b style="width:' + (top[0][1] > 0 ? Math.max(0, x[1]) / top[0][1] * 100 : 0) + '%"></b></div></div><div class="amt">' + money(x[1]) + "</div></div>"; }).join("") : '<div class="empty">No orders in this period.</div>') + "</div>";
+    var yt = C.totals(S, y + "-01-01", a, a), cap = C.num(S.settings.cap);
+    h += '<div class="card"><h2>Yearly sales limit</h2>' + (cap > 0 ? '<div class="mono">' + money(yt.sales) + " of " + money(cap) + '</div><div class="meter"><b style="width:' + Math.min(100, yt.sales / cap * 100) + '%"></b></div><div class="small muted">' +
+      (yt.sales >= cap ? "▲ Limit reached." : yt.sales >= cap * C.num(S.settings.warnPct) ? "● Getting close." : "✓ Below your limit.") + " Check your own local rules.</div>" :
+      '<div class="muted small">No limit set. Some home-bakery rules cap yearly sales: add yours in Settings.</div>') + "</div>";
+    h += '<div class="card"><h2>Tax set-aside guide</h2><div class="mono">' + money(Math.max(0, t.profit) * C.num(S.settings.taxPct)) + '</div><div class="small muted">' + Math.round(C.num(S.settings.taxPct) * 100) +
+      "% of " + label.toLowerCase() + "'s profit from orders, before running costs. The spreadsheet's Tax Set-Aside tab includes running costs. A savings habit, not tax advice.</div></div>";
+    return h;
+  }
+
+  function renderSettings() {
+    var s = S.settings;
+    var last = S.lastBackup ? fmtDate(S.lastBackup.slice(0, 10)) : "never";
+    return '<div class="card"><h2>Your prices</h2><div id="setf">' +
+      '<div class="grid2">' + field("Currency label", inp("currency", s.currency)) + field("My hourly rate", inp("rate", s.rate, "num")) + "</div>" +
+      '<div class="grid2">' + field("Markup on full cost (%)", inp("markup", Math.round(C.num(s.markup) * 1000) / 10, "num")) + field("Round prices up to", inp("step", s.step, "num")) + "</div>" +
+      '<div class="grid2">' + field("Overhead", inp("overhead", s.overType === "Per item" ? s.overhead : Math.round(C.num(s.overhead) * 1000) / 10, "num")) +
+      field("Overhead counted as", '<select class="i" name="overType">' + opts([{ v: "Per item", t: "Amount per item" }, { v: "% of ingredients", t: "% of ingredients" }], s.overType) + "</select>") + "</div>" +
+      '<div class="grid2">' + field("Shopping list: next (days)", inp("shopDays", s.shopDays, "num")) + field("Due soon within (days)", inp("dueDays", s.dueDays, "num")) + "</div>" +
+      '<div class="grid2">' + field("Yearly sales limit (blank = none)", inp("cap", s.cap, "num")) + field("Tax set-aside (%)", inp("taxPct", Math.round(C.num(s.taxPct) * 1000) / 10, "num")) + "</div>" +
+      field("Order channels (one per line)", '<textarea class="i" name="channels" rows="4">' + esc((S.channels || []).join("\n")) + "</textarea>") +
+      '<button class="btn block" data-a="save-settings">Save settings</button></div></div>' +
+      '<div class="card"><h2>Backup</h2><p class="small muted" style="margin-top:0">Your data lives only on this device. Last backup: ' + esc(last) + '. Make one now and then, and before you change phones.</p>' +
+      '<div class="btns"><button class="btn" data-a="backup">Download backup</button><button class="btn ghost" data-a="restore">Restore a backup</button></div>' +
+      '<input type="file" id="restoreFile" accept=".json,application/json" hidden></div>' +
+      '<div class="card"><h2>Orders to the spreadsheet</h2><p class="small muted" style="margin-top:0">Copies your orders in the same column order as the Orders tab (A to R). Paste them below your last order in the sheet.</p>' +
+      '<div class="btns"><button class="btn" data-a="copy-orders">Copy orders</button><button class="btn ghost" data-a="csv-orders">Download CSV</button></div></div>' +
+      '<div class="card"><h2>Look</h2><div class="seg" style="margin:0"><button data-a="theme" data-v="" class="' + (!S.theme ? "on" : "") + '">Device</button><button data-a="theme" data-v="light" class="' + (S.theme === "light" ? "on" : "") + '">Light</button><button data-a="theme" data-v="dark" class="' + (S.theme === "dark" ? "on" : "") + '">Dark</button></div></div>' +
+      '<div class="card"><h2>Start over</h2><div class="btns"><button class="btn plain" data-a="load-sample">Load sample data</button><button class="btn danger" data-a="clear-all">Delete everything</button></div></div>' +
+      '<p class="small muted">Home Bakery Pricing &amp; Profit · works offline · no account. Suggested prices are a starting point: you decide your prices. Not tax advice.</p>';
+  }
+
+  // ---------------------------------------------------------------- editors (bottom sheets)
+  var sheetEl = null;
+  function openSheet(title, html, onReady) {
+    closeSheet();
+    sheetEl = document.createElement("div"); sheetEl.className = "sheet";
+    sheetEl.innerHTML = '<div class="panel" role="dialog" aria-label="' + esc(title) + '"><div class="bar"><h3>' + esc(title) + '</h3><button class="x" data-a="close" aria-label="Close">×</button></div><div class="body">' + html + "</div></div>";
+    document.body.appendChild(sheetEl);
+    sheetEl.addEventListener("click", function (e) { if (e.target === sheetEl) closeSheet(); });
+    if (onReady) onReady(sheetEl.querySelector(".body"));
+  }
+  function closeSheet() { if (sheetEl) { sheetEl.remove(); sheetEl = null; } }
+
+  function orderEditor(id) {
+    var o = id ? C.byId(S.orders, id) : { id: null, ordered: asOf(), pickup: "", qty: 1, status: "" };
+    var prods = sorted(S.products, "name").map(function (p) { return { v: p.id, t: p.name }; });
+    var html = '<div id="of">' + field("Customer", inp("customer", o.customer)) + field("Contact (optional)", inp("contact", o.contact)) +
+      field("Product", '<select class="i" name="productId">' + opts(prods, o.productId, "Pick a product") + "</select>") +
+      '<div class="grid2">' + field("Qty", inp("qty", o.qty, "num")) + field("Price each (blank = price list)", inp("price", o.price, "num")) + "</div>" +
+      '<div class="grid2">' + field("Pickup or delivery date", inp("pickup", o.pickup, "date")) + field("Time", inp("time", o.time, "time")) + "</div>" +
+      '<div class="grid3">' + field("Extras", inp("extras", o.extras, "num")) + field("Discount", inp("discount", o.discount, "num")) + field("Delivery fee", inp("delivery", o.delivery, "num")) + "</div>" +
+      '<div class="grid2">' + field("Deposit", inp("deposit", o.deposit, "num")) + field("Deposit paid on", inp("depositOn", o.depositOn, "date")) + "</div>" +
+      '<div class="grid2">' + field("Paid in full on", inp("paidOn", o.paidOn, "date")) + field("Status", '<select class="i" name="status">' + opts([{ v: "", t: "Auto (by date)" }].concat(STATUSES), o.status) + "</select>") + "</div>" +
+      '<div class="grid2">' + field("Ordered on", inp("ordered", o.ordered, "date")) + field("Channel", '<select class="i" name="channel">' + opts(S.channels || [], o.channel, "–") + "</select>") + "</div>" +
+      field("Notes", '<textarea class="i" name="notes" rows="2">' + esc(o.notes || "") + "</textarea>") +
+      '<div class="card break" id="osum"></div>' +
+      '<div class="btns"><button class="btn" data-a="save-order" data-id="' + (o.id || "") + '">Save</button>' +
+      (o.id ? '<button class="btn ghost" data-a="mark-delivered" data-id="' + o.id + '">Delivered + paid</button>' : "") + "</div>" +
+      (o.id ? '<div class="btns"><button class="btn plain" data-a="quote" data-id="' + o.id + '">Order summary</button><button class="btn danger" data-a="del-order" data-id="' + o.id + '">Delete</button></div>' : "") + "</div>";
+    openSheet(o.id ? "Edit order" : "New order", html, function (b) {
+      var f = b.querySelector("#of"), sum = b.querySelector("#osum");
+      function upd() { var d = orderFromForm(form(f), o); var oi = C.orderInfo(S, d, asOf());
+        sum.innerHTML = "<div><span>Order total</span><b>" + money(oi.total) + "</b></div><div><span>Paid so far</span><span>" + money(oi.paid) + "</span></div><div><span>Balance due</span><b>" + money(oi.balance) +
+          "</b></div><div><span>Cost (not your time)</span><span>" + money(oi.cost) + "</span></div><div><span>Profit</span><b>" + money(oi.profit) + "</b></div><div><span>Status</span>" + pill(oi.pill) + "</div>"; }
+      f.addEventListener("input", upd); f.addEventListener("change", upd); upd();
+    });
+  }
+  function orderFromForm(v, o) {
+    var d = Object.assign({}, o);
+    ["customer", "contact", "productId", "pickup", "time", "depositOn", "paidOn", "status", "ordered", "channel", "notes"].forEach(function (k) { d[k] = v[k] || null; });
+    if (d.status === null) d.status = "";
+    ["qty", "price", "extras", "discount", "delivery", "deposit"].forEach(function (k) { d[k] = parseNum(v[k]); });
+    return d;
+  }
+  function freezeCost(o) {
+    if (C.isNum(o.costEach)) return;
+    var p = C.byId(S.products, o.productId); if (p) o.costEach = Math.round(C.productInfo(S, p).money * 10000) / 10000;
+  }
+
+  function productEditor(id) {
+    var p = id ? C.byId(S.products, id) : { id: null, pieces: 1 };
+    var recs = sorted(S.recipes, "name").map(function (r) { return { v: r.id, t: r.name + " (makes " + n2(r.yield) + ")" }; });
+    var html = '<div id="pf">' + field("Product name", inp("name", p.name)) +
+      '<div class="grid2">' + field("Recipe", '<select class="i" name="recipeId">' + opts(recs, p.recipeId, "No recipe") + "</select>") + field("Pieces of the recipe per item", inp("pieces", p.pieces, "num")) + "</div>" +
+      '<div class="grid3">' + field("Packaging", inp("pack", p.pack, "num")) + field("Decoration", inp("deco", p.deco, "num")) + field("Minutes of work", inp("mins", p.mins, "num")) + "</div>" +
+      '<div class="grid2">' + field("My price (blank = suggested)", inp("price", p.price, "num")) + field("Category", inp("cat", p.cat)) + "</div>" +
+      '<div class="card break" id="psum"></div>' +
+      '<div class="btns"><button class="btn" data-a="save-product" data-id="' + (p.id || "") + '">Save</button>' + (p.id ? '<button class="btn danger" data-a="del-product" data-id="' + p.id + '">Delete</button>' : "") + "</div></div>";
+    openSheet(p.id ? "Price a product" : "New product", html, function (b) {
+      var f = b.querySelector("#pf"), sum = b.querySelector("#psum");
+      function upd() { var d = productFromForm(form(f), p), pi = C.productInfo(S, d), rate = C.num(S.settings.rate);
+        sum.innerHTML = "<div><span>Ingredients</span><span>" + money(pi.ing) + "</span></div><div><span>Packaging + decoration</span><span>" + money(C.num(d.pack) + C.num(d.deco)) + "</span></div><div><span>Overhead</span><span>" + money(pi.over) +
+          "</span></div><div><span>Your pay (" + n2(C.num(d.mins)) + " min × " + money(rate) + "/h)</span><span>" + money(pi.labour) + "</span></div><div><span>Full cost</span><b>" + money(pi.full) +
+          '</b></div><div class="big"><span>Suggested price</span><span>' + money(pi.sugg) + "</span></div><div><span>Price used</span><b>" + money(pi.used) + "</b></div><div><span>Profit per item</span><span>" + money(pi.profit) +
+          "</span></div><div><span>Earned per hour</span><b>" + (pi.perHour === null ? "–" : money(pi.perHour)) + "</b></div><div><span>Check</span>" + flagPill(pi.flag) + "</div>"; }
+      f.addEventListener("input", upd); f.addEventListener("change", upd); upd();
+    });
+  }
+  function productFromForm(v, p) {
+    var d = Object.assign({}, p);
+    d.name = (v.name || "").trim(); d.cat = v.cat || null; d.recipeId = v.recipeId || null;
+    ["pieces", "pack", "deco", "mins", "price"].forEach(function (k) { d[k] = parseNum(v[k]); });
+    return d;
+  }
+
+  function recipeEditor(id) {
+    var r = id ? JSON.parse(JSON.stringify(C.byId(S.recipes, id))) : { id: null, name: "", yield: 1, lines: [] };
+    if (!r.lines.length) r.lines.push({ ingId: "", qty: null, unit: "g" });
+    var ings = sorted(S.ingredients, "name").map(function (g) { return { v: g.id, t: g.name }; });
+    var units = S.units.map(function (u) { return u.u; });
+    function linesHtml() {
+      return r.lines.map(function (l, i) {
+        var li = l.ingId ? C.lineInfo(S, l) : { problem: "", cost: null };
+        return '<div class="line" data-i="' + i + '"><select class="i" name="ing' + i + '">' + opts(ings, l.ingId, "Ingredient") + "</select>" + inp("qty" + i, l.qty, "num", ' placeholder="Qty"') +
+          '<select class="i" name="unit' + i + '">' + opts(units, l.unit) + '</select><button class="x" data-a="del-line" data-i="' + i + '" aria-label="Remove">×</button>' +
+          '<div class="note ' + (li.problem ? "" : "muted") + '" style="' + (li.problem ? "color:var(--bad)" : "") + '">' + (li.problem ? esc(li.problem) : li.cost === null ? "" : money(li.cost)) + "</div></div>";
+      }).join("");
+    }
+    var html = '<div id="rf">' + '<div class="grid2">' + field("Recipe name", inp("name", r.name)) + field("Makes (pieces)", inp("yield", r.yield, "num")) + "</div>" +
+      '<div id="lines">' + linesHtml() + '</div><button class="btn plain block" data-a="add-line">+ Ingredient line</button>' +
+      '<div class="card break" id="rsum" style="margin-top:12px"></div><div class="btns"><button class="btn" data-a="save-recipe">Save</button>' +
+      (r.id ? '<button class="btn danger" data-a="del-recipe" data-id="' + r.id + '">Delete</button>' : "") + "</div></div>";
+    openSheet(r.id ? "Edit recipe" : "New recipe", html, function (b) {
+      var f = b.querySelector("#rf");
+      function read() { var v = form(f); r.name = (v.name || "").trim(); r.yield = parseNum(v.yield);
+        r.lines.forEach(function (l, i) { l.ingId = v["ing" + i] || ""; l.qty = parseNum(v["qty" + i]); l.unit = v["unit" + i]; }); }
+      function upd(full) { read(); if (full) b.querySelector("#lines").innerHTML = linesHtml(); else b.querySelectorAll(".line").forEach(function (el, i) {
+          var l = r.lines[i], li = l.ingId ? C.lineInfo(S, l) : { problem: "", cost: null }, n = el.querySelector(".note");
+          n.textContent = li.problem || (li.cost === null ? "" : money(li.cost)); n.style.color = li.problem ? "var(--bad)" : ""; });
+        var ri = C.recipeInfo(S, { yield: r.yield, lines: r.lines.filter(function (l) { return l.ingId; }) });
+        b.querySelector("#rsum").innerHTML = "<div><span>Ingredient cost (batch)</span><b>" + money(ri.cost) + '</b></div><div class="big"><span>Cost per piece</span><span>' + (ri.perPiece === null ? "–" : money(ri.perPiece)) + "</span></div>"; }
+      f.addEventListener("input", function () { upd(false); }); f.addEventListener("change", function () { upd(false); });
+      f.addEventListener("click", function (e) {
+        var a = e.target.closest("[data-a]"); if (!a) return;
+        if (a.dataset.a === "add-line") { read(); r.lines.push({ ingId: "", qty: null, unit: "g" }); upd(true); e.stopPropagation(); }
+        if (a.dataset.a === "del-line") { read(); r.lines.splice(+a.dataset.i, 1); if (!r.lines.length) r.lines.push({ ingId: "", qty: null, unit: "g" }); upd(true); e.stopPropagation(); }
+        if (a.dataset.a === "save-recipe") { read(); e.stopPropagation();
+          if (!r.name) return toast("Give the recipe a name.");
+          if (!(r.yield > 0)) return toast("How many pieces does it make?");
+          if (S.recipes.some(function (x) { return x.name === r.name && x.id !== r.id; })) return toast("That name is already used.");
+          r.lines = r.lines.filter(function (l) { return l.ingId && l.qty !== null; });
+          if (r.id) S.recipes[S.recipes.findIndex(function (x) { return x.id === r.id; })] = r; else { r.id = uid("r"); S.recipes.push(r); }
+          save(); closeSheet(); render(); toast("Recipe saved"); }
+      });
+      upd(false);
+    });
+  }
+
+  function ingEditor(id) {
+    var g = id ? C.byId(S.ingredients, id) : { id: null, unit: "g" };
+    var units = S.units.map(function (u) { return u.u; });
+    var html = '<div id="gf">' + field("Ingredient", inp("name", g.name)) +
+      '<div class="grid3">' + field("Pack size", inp("size", g.size, "num")) + field("Unit", '<select class="i" name="unit">' + opts(units, g.unit) + "</select>") + field("Pack price", inp("price", g.price, "num")) + "</div>" +
+      '<div class="grid2">' + field("Grams per cup (dry, optional)", inp("gpc", g.gpc, "num")) + field("Where you buy it", inp("supplier", g.supplier)) + "</div>" +
+      '<div class="grid2">' + field("Packs on hand (optional)", inp("onHand", g.onHand, "num")) + field("Low at (packs, optional)", inp("lowAt", g.lowAt, "num")) + "</div>" +
+      '<p class="small muted" id="gsum"></p><div class="btns"><button class="btn" data-a="save-ing" data-id="' + (g.id || "") + '">Save</button>' + (g.id ? '<button class="btn danger" data-a="del-ing" data-id="' + g.id + '">Delete</button>' : "") + "</div></div>";
+    openSheet(g.id ? "Edit ingredient" : "New ingredient", html, function (b) {
+      var f = b.querySelector("#gf");
+      function upd() { var d = ingFromForm(form(f), g), ii = C.ingInfo(S, d);
+        b.querySelector("#gsum").textContent = ii.perBase === null ? "Fill in pack size, unit and price." : "Costs " + (S.settings.currency || "") + ii.perBase.toFixed(4) + " per " + ii.base + ". Every recipe using it updates when you save."; }
+      f.addEventListener("input", upd); f.addEventListener("change", upd); upd();
+    });
+  }
+  function ingFromForm(v, g) {
+    var d = Object.assign({}, g);
+    d.name = (v.name || "").trim(); d.unit = v.unit; d.supplier = v.supplier || null;
+    ["size", "price", "gpc", "onHand", "lowAt"].forEach(function (k) { d[k] = parseNum(v[k]); });
+    return d;
+  }
+
+  function quote(id) {
+    var o = C.byId(S.orders, id), oi = C.orderInfo(S, o, asOf()), p = oi.product;
+    var lines = [(o.customer || "") , (p ? p.name : "") + (o.qty > 1 ? " × " + o.qty : "") + " · " + money(oi.price) + " each"];
+    if (C.num(o.extras)) lines.push("Extras: " + money(o.extras));
+    if (C.num(o.discount)) lines.push("Discount: −" + money(o.discount));
+    if (C.num(o.delivery)) lines.push("Delivery: " + money(o.delivery));
+    lines.push("Total: " + money(oi.total), "Paid: " + money(oi.paid), (oi.status === "Enquiry" ? "To pay: " + money(C.round(oi.total - oi.paid)) : "Balance due: " + money(oi.balance)));
+    if (o.pickup) lines.push("Pickup: " + fmtDate(o.pickup, true) + (o.time ? " " + o.time : ""));
+    var html = '<div class="quote"><h4>' + esc(o.customer || "Order") + '</h4><div class="muted small">' + esc(o.pickup ? "Pickup " + fmtDate(o.pickup, true) + (o.time ? " · " + o.time : "") : "") +
+      '</div><div class="break" style="margin-top:12px">' + lines.slice(1).map(function (l) { var i = l.indexOf(": "); return i > 0 ? "<div><span>" + esc(l.slice(0, i)) + "</span><b>" + esc(l.slice(i + 2)) + "</b></div>" : "<div><span>" + esc(l) + "</span></div>"; }).join("") +
+      '</div></div><div class="btns"><button class="btn" data-a="copy-text">Copy as text</button></div><p class="small muted">Or take a screenshot to send it.</p>';
+    openSheet("Order summary", html, function (b) {
+      b.querySelector('[data-a="copy-text"]').addEventListener("click", function (e) { e.stopPropagation(); copy(lines.join("\n")); });
+    });
+  }
+
+  // ---------------------------------------------------------------- export, backup
+  function copy(text) {
+    (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { toast("Copied"); }, function () {
+      var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); toast("Copied"); } catch (e) { toast("Copy did not work: select and copy by hand"); } t.remove(); });
+  }
+  function download(name, text, type) {
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: type })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function orderTable(sep) {
+    var nfmt = function (x) { return x == null || x === "" ? "" : String(x).replace(".", DEC); };
+    return S.orders.slice().sort(function (a, b) { return (a.pickup || "").localeCompare(b.pickup || ""); }).map(function (o) {
+      var p = C.byId(S.products, o.productId);
+      return [o.ordered, o.customer, o.contact, o.pickup, o.time, p ? p.name : "", nfmt(o.qty), nfmt(o.price), nfmt(o.extras), nfmt(o.discount),
+        nfmt(o.delivery), nfmt(o.deposit), o.depositOn, o.paidOn, o.status, o.channel, nfmt(o.costEach), o.notes].map(function (v) {
+        v = v == null ? "" : String(v);
+        if (sep === "\t") return v.replace(/[\t\n]/g, " ");
+        return /[",;\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }).join(sep);
+    }).join("\n");
+  }
+
+  // ---------------------------------------------------------------- actions
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest("[data-a]"); if (!a) return;
+    var act = a.dataset.a, id = a.dataset.id, v = a.dataset.v;
+    var panel = sheetEl && sheetEl.querySelector(".body");
+    switch (act) {
+      case "tab": view.tab = v; window.scrollTo(0, 0); render(); break;
+      case "ofilter": view.orderFilter = v; render(); break;
+      case "pseg": view.priceSeg = v; render(); break;
+      case "iseg": view.ingSeg = v; render(); break;
+      case "mseg": view.moreSeg = v; render(); break;
+      case "nper": view.numbers = v; render(); break;
+      case "close": closeSheet(); break;
+      case "new-order": if (!S.products.length) { toast("Add a product first (Price it)."); break; } orderEditor(null); break;
+      case "edit-order": orderEditor(id); break;
+      case "new-product": productEditor(null); break;
+      case "edit-product": productEditor(id); break;
+      case "new-recipe": if (!S.ingredients.length) { toast("Add ingredients first."); break; } recipeEditor(null); break;
+      case "edit-recipe": recipeEditor(id); break;
+      case "new-ing": ingEditor(null); break;
+      case "edit-ing": ingEditor(id); break;
+      case "quote": quote(id); break;
+      case "save-order": case "mark-delivered": {
+        var cur = id ? C.byId(S.orders, id) : {};
+        var d = orderFromForm(form(panel.querySelector("#of")), cur);
+        if (!d.productId) return toast("Pick a product.");
+        if (!d.pickup) return toast("Add the pickup date.");
+        if (!(d.qty > 0)) return toast("Qty must be more than 0.");
+        if (act === "mark-delivered") { d.status = "Delivered"; if (!d.paidOn) d.paidOn = asOf(); }
+        if (C.orderInfo(S, d, asOf()).status === "Delivered") freezeCost(d);
+        if (id) S.orders[S.orders.findIndex(function (x) { return x.id === id; })] = d; else { d.id = uid("o"); S.orders.push(d); }
+        save(); closeSheet(); render(); toast(act === "mark-delivered" ? "Marked delivered and paid" : "Order saved"); break; }
+      case "del-order": if (confirm("Delete this order?")) { S.orders = S.orders.filter(function (x) { return x.id !== id; }); save(); closeSheet(); render(); } break;
+      case "save-product": {
+        var cp = id ? C.byId(S.products, id) : {};
+        var pd = productFromForm(form(panel.querySelector("#pf")), cp);
+        if (!pd.name) return toast("Give the product a name.");
+        if (S.products.some(function (x) { return x.name === pd.name && x.id !== pd.id; })) return toast("That name is already used.");
+        if (id) S.products[S.products.findIndex(function (x) { return x.id === id; })] = pd; else { pd.id = uid("p"); S.products.push(pd); }
+        save(); closeSheet(); render(); toast("Product saved"); break; }
+      case "del-product":
+        if (S.orders.some(function (o) { return o.productId === id; })) { toast("Orders use this product: it stays."); break; }
+        if (confirm("Delete this product?")) { S.products = S.products.filter(function (x) { return x.id !== id; }); save(); closeSheet(); render(); } break;
+      case "del-recipe":
+        if (S.products.some(function (p) { return p.recipeId === id; })) { toast("A product uses this recipe: it stays."); break; }
+        if (confirm("Delete this recipe?")) { S.recipes = S.recipes.filter(function (x) { return x.id !== id; }); save(); closeSheet(); render(); } break;
+      case "save-ing": {
+        var cg = id ? C.byId(S.ingredients, id) : {};
+        var gd = ingFromForm(form(panel.querySelector("#gf")), cg);
+        if (!gd.name) return toast("Give the ingredient a name.");
+        if (S.ingredients.some(function (x) { return x.name === gd.name && x.id !== gd.id; })) return toast("That name is already used.");
+        if (id) S.ingredients[S.ingredients.findIndex(function (x) { return x.id === id; })] = gd; else { gd.id = uid("i"); S.ingredients.push(gd); }
+        save(); closeSheet(); render(); toast("Ingredient saved"); break; }
+      case "del-ing":
+        if (S.recipes.some(function (r) { return r.lines.some(function (l) { return l.ingId === id; }); })) { toast("A recipe uses this ingredient: it stays."); break; }
+        if (confirm("Delete this ingredient?")) { S.ingredients = S.ingredients.filter(function (x) { return x.id !== id; }); save(); closeSheet(); render(); } break;
+      case "save-settings": {
+        var sv = form(document.getElementById("setf")), s = S.settings;
+        s.currency = (sv.currency || "").slice(0, 6);
+        var num = function (k, def) { var x = parseNum(sv[k]); return x === null ? def : x; };
+        s.rate = num("rate", 0); s.markup = num("markup", 0) / 100; s.step = num("step", 0.5) || 0.5; s.overType = sv.overType;
+        s.overhead = s.overType === "Per item" ? num("overhead", 0) : num("overhead", 0) / 100;
+        s.shopDays = Math.max(0, Math.round(num("shopDays", 7))); s.dueDays = Math.max(0, Math.round(num("dueDays", 3)));
+        s.cap = parseNum(sv.cap); s.taxPct = num("taxPct", 20) / 100;
+        S.channels = sv.channels.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+        save(); render(); toast("Settings saved"); break; }
+      case "theme": S.theme = v || null; applyTheme(); save(); render(); break;
+      case "backup": S.lastBackup = new Date().toISOString(); save();
+        download("bakery-backup-" + asOf() + ".json", JSON.stringify(S), "application/json"); break;
+      case "restore": document.getElementById("restoreFile").click(); break;
+      case "copy-orders": copy(orderTable("\t")); break;
+      case "csv-orders": download("bakery-orders-" + asOf() + ".csv", "﻿" + orderTable(DEC === "," ? ";" : ","), "text/csv"); break;
+      case "load-sample": if (!S.orders.length || confirm("Replace everything on this device with the sample bakery?")) { S = JSON.parse(JSON.stringify(SAMPLE)); shiftSample(S); save(); view.tab = "today"; render(); } break;
+      case "start-empty": S = emptyState(); save(); view.tab = "ing"; view.ingSeg = "all"; render(); toast("Start with your ingredients"); break;
+      case "clear-all": if (confirm("Delete all your orders, products, recipes and ingredients on this device? Make a backup first.")) { S = emptyState(); save(); render(); } break;
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.dataset && e.target.dataset.a === "search") { view.q = e.target.value; var pos = e.target.selectionStart; render(); var s = document.querySelector('[data-a="search"]'); s.focus(); s.setSelectionRange(pos, pos); } });
+  document.addEventListener("change", function (e) {
+    if (e.target.id !== "restoreFile" || !e.target.files[0]) return;
+    var r = new FileReader();
+    r.onload = function () { try { var d = JSON.parse(r.result); if (!d || !d.settings || !Array.isArray(d.orders)) throw 0;
+        if (confirm("Replace everything on this device with this backup?")) { S = d; save(); applyTheme(); render(); toast("Backup restored"); } }
+      catch (x) { toast("That file is not a backup from this app."); } };
+    r.readAsText(e.target.files[0]);
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+
+  // ---------------------------------------------------------------- state
+  function emptyState() {
+    var s = JSON.parse(JSON.stringify(SAMPLE));
+    s.ingredients = []; s.recipes = []; s.products = []; s.orders = []; s.sample = false;
+    return s;
+  }
+  // the sample's dates are moved so its "today" (Nov 10, 2026) is the real today
+  function shiftSample(s) {
+    var delta = C.day(C.today()) - C.day(s.sampleAsOf || "2026-11-10");
+    ["ordered", "pickup", "depositOn", "paidOn"].forEach(function (k) {
+      s.orders.forEach(function (o) { if (o[k]) o[k] = C.iso(C.day(o[k]) + delta); });
+    });
+    s.sample = true;
+  }
+  function applyTheme() { if (S && S.theme) document.documentElement.setAttribute("data-theme", S.theme); else document.documentElement.removeAttribute("data-theme"); }
+
+  store.get().then(function (d) {
+    S = d && d.settings ? d : emptyState();
+    applyTheme(); render();
+    if (S.lastBackup && C.day(C.today()) - C.day(S.lastBackup.slice(0, 10)) > 14 && S.orders.length) setTimeout(function () { toast("Tip: no backup for 2 weeks (Numbers > Settings & backup)"); }, 1200);
+  });
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) navigator.serviceWorker.register("sw.js").catch(function () {});
+})();
+</script>
+</body></html>
